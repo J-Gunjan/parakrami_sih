@@ -1,0 +1,27 @@
+{
+  "name": "@nyayalabel/shared",
+  "version": "0.1.0",
+  "description": "Shared TypeScript definitions and interfaces for NyayaLabel AI",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint \"src/**/*.{ts,tsx}\""
+  },
+  "keywords": [
+    "legal-metrology",
+    "types",
+    "inspection",
+    "compliance"
+  ],
+  "author": "NyayaLabel AI Team",
+  "license": "UNLICENSED",
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^8.0.0",
+    "@typescript-eslint/parser": "^8.0.0",
+    "eslint": "^8.57.0",
+    "typescript": "^5.5.4"
+  }
+}

@@ -1,0 +1,54 @@
+version: '3.8'
+
+services:
+  # MongoDB Database Service
+  mongodb:
+    image: mongo:7.0
+    container_name: nyayalabel-mongodb
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USER:-nyaya_admin}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD:-nyaya_secret_password}
+      MONGO_INITDB_DATABASE: ${MONGO_DB_NAME:-nyayalabel_db}
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - nyayalabel-network
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Node.js + Express Backend REST API
+  backend:
+    build:
+      context: .
+      dockerfile: ./backend/Dockerfile
+    container_name: nyayalabel-backend
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    environment:
+      NODE_ENV: development
+      PORT: 5000
+      MONGO_URI: mongodb://${MONGO_ROOT_USER:-nyaya_admin}:${MONGO_ROOT_PASSWORD:-nyaya_secret_password}@mongodb:27017/${MONGO_DB_NAME:-nyayalabel_db}?authSource=admin
+      JWT_SECRET: ${JWT_SECRET:-dev_jwt_secret_key_change_in_production}
+      CORS_ORIGIN: http://localhost:5173,http://localhost:3000
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    volumes:
+      - ./backend/uploads:/app/backend/uploads
+    networks:
+      - nyayalabel-network
+
+volumes:
+  mongodb_data:
+    driver: local
+
+networks:
+  nyayalabel-network:
+    driver: bridge
