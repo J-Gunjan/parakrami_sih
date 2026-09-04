@@ -1,7 +1,7 @@
 import { appSchema, tableSchema } from '@nozbe/watermelondb';
 
 export default appSchema({
-  version: 1,
+  version: 2,
   tables: [
     tableSchema({
       name: 'officers',
@@ -19,6 +19,8 @@ export default appSchema({
         { name: 'location_lat', type: 'number', isOptional: true },
         { name: 'location_lng', type: 'number', isOptional: true },
         { name: 'address', type: 'string', isOptional: true },
+        { name: 'market', type: 'string', isOptional: true },
+        { name: 'district', type: 'string', isOptional: true },
         { name: 'created_at', type: 'number' },
         { name: 'status', type: 'string' },
         { name: 'sync_status', type: 'string' },

@@ -11,6 +11,8 @@ export default class Inspection extends Model {
   @field('location_lat') locationLat?: number;
   @field('location_lng') locationLng?: number;
   @text('address') address?: string;
+  @text('market') market?: string;
+  @text('district') district?: string;
   @date('created_at') createdAt!: number;
   @text('status') status!: string;
   @text('sync_status') apiSyncStatus!: string;

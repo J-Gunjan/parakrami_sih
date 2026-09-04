@@ -11,6 +11,8 @@ export class InspectionRepository {
     locationLat?: number;
     locationLng?: number;
     address?: string;
+    market?: string;
+    district?: string;
   }): Promise<Inspection> {
     return await database.write(async () => {
       return await database.get<Inspection>('inspections').create(inspection => {
@@ -19,6 +21,8 @@ export class InspectionRepository {
         inspection.locationLat = data.locationLat;
         inspection.locationLng = data.locationLng;
         inspection.address = data.address;
+        inspection.market = data.market;
+        inspection.district = data.district;
         inspection.createdAt = Date.now();
         inspection.status = 'draft';
         inspection.apiSyncStatus = 'pending';

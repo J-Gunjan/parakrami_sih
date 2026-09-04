@@ -5,6 +5,8 @@ import { View, ActivityIndicator, StyleSheet } from 'react-native';
 import { useAuth } from '../providers/AuthProvider';
 import LoginScreen from '../screens/auth/LoginScreen';
 import HomeScreen from '../screens/main/HomeScreen';
+import NewInspectionScreen from '../screens/main/NewInspectionScreen';
+import ProductDetailsScreen from '../screens/main/ProductDetailsScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -32,7 +34,11 @@ export default function AppNavigator() {
     <NavigationContainer theme={DarkTheme}>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         {isAuthenticated ? (
-          <Stack.Screen name="Home" component={HomeScreen} />
+          <>
+            <Stack.Screen name="Home" component={HomeScreen} />
+            <Stack.Screen name="NewInspection" component={NewInspectionScreen} />
+            <Stack.Screen name="ProductDetails" component={ProductDetailsScreen} />
+          </>
         ) : (
           <Stack.Screen name="Login" component={LoginScreen} />
         )}
