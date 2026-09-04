@@ -5,6 +5,13 @@ import Officer from './Officer';
 export default class Inspection extends Model {
   static table = 'inspections';
 
+  static associations = {
+    officers: { type: 'belongs_to', key: 'officer_id' as const },
+    products: { type: 'has_many', foreignKey: 'inspection_id' as const },
+    captured_images: { type: 'has_many', foreignKey: 'inspection_id' as const },
+    violations: { type: 'has_many', foreignKey: 'inspection_id' as const },
+  };
+
   @text('officer_id') officerId!: string;
   @relation('officers', 'officer_id') officer!: Officer;
   @text('shop_name') shopName!: string;

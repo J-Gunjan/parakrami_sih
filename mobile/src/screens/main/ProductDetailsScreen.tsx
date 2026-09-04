@@ -15,7 +15,7 @@ import { ProductRepository } from '../../repositories/ProductRepository';
 import { DeclarationFields } from '@nyayalabel/shared';
 
 export default function ProductDetailsScreen({ route, navigation }: any) {
-  const { inspectionId } = route.params;
+  const { inspectionId, scannedBarcode } = route.params || {};
 
   const [form, setForm] = useState({
     productName: '',
@@ -79,7 +79,7 @@ export default function ProductDetailsScreen({ route, navigation }: any) {
         consumerCare: form.consumerCare,
       };
 
-      await ProductRepository.create(inspectionId, declarationFields);
+      await ProductRepository.create(inspectionId, declarationFields, scannedBarcode);
       
       Alert.alert('Success', 'Product saved locally.', [
         { text: 'OK', onPress: () => navigation.navigate('Home') }

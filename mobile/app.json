@@ -20,9 +20,18 @@
       ]
     },
     "web": {},
+    "splash": {
+      "backgroundColor": "#020617"
+    },
     "plugins": [
       "@morrowdigital/watermelondb-expo-plugin",
-      "expo-secure-store"
+      "expo-secure-store",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow NyayaLabel AI Officer to access your camera for product inspection."
+        }
+      ]
     ]
   }
 }

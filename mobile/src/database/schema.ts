@@ -1,7 +1,7 @@
 import { appSchema, tableSchema } from '@nozbe/watermelondb';
 
 export default appSchema({
-  version: 2,
+  version: 3,
   tables: [
     tableSchema({
       name: 'officers',
@@ -30,6 +30,7 @@ export default appSchema({
       name: 'products',
       columns: [
         { name: 'inspection_id', type: 'string', isIndexed: true },
+        { name: 'barcode_or_gtin', type: 'string', isOptional: true },
         { name: 'declaration_fields', type: 'string' }, // Storing JSON string for flexibility
       ],
     }),

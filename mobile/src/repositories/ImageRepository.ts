@@ -10,6 +10,7 @@ export class ImageRepository {
     inspectionId: string;
     tempUri: string;
     imageType: string;
+    qualityScore?: number;
   }): Promise<CapturedImage> {
     const imageId = `${Date.now()}-${Math.floor(Math.random() * 10000)}`;
     
@@ -26,6 +27,7 @@ export class ImageRepository {
         img.inspectionId = data.inspectionId;
         img.localFilePath = localFilePath;
         img.imageType = data.imageType;
+        img.qualityScore = data.qualityScore;
         img.capturedAt = Date.now();
         img.uploaded = false;
       });

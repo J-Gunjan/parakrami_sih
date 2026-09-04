@@ -5,6 +5,10 @@ import Inspection from './Inspection';
 export default class Violation extends Model {
   static table = 'violations';
 
+  static associations = {
+    inspections: { type: 'belongs_to', key: 'inspection_id' as const },
+  };
+
   @text('inspection_id') inspectionId!: string;
   @relation('inspections', 'inspection_id') inspection!: Inspection;
   @text('rule_id') ruleId!: string;

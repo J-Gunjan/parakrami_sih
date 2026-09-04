@@ -5,6 +5,10 @@ import Inspection from './Inspection';
 export default class CapturedImage extends Model {
   static table = 'captured_images';
 
+  static associations = {
+    inspections: { type: 'belongs_to', key: 'inspection_id' as const },
+  };
+
   @text('inspection_id') inspectionId!: string;
   @relation('inspections', 'inspection_id') inspection!: Inspection;
   @text('local_file_path') localFilePath!: string;

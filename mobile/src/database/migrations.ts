@@ -14,5 +14,16 @@ export default schemaMigrations({
         }),
       ],
     },
+    {
+      toVersion: 3,
+      steps: [
+        addColumns({
+          table: 'products',
+          columns: [
+            { name: 'barcode_or_gtin', type: 'string', isOptional: true },
+          ],
+        }),
+      ],
+    },
   ],
 });

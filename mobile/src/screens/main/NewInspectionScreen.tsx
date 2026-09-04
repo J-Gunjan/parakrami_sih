@@ -85,8 +85,8 @@ export default function NewInspectionScreen({ navigation }: any) {
         locationLng: longitude ? parseFloat(longitude) : undefined,
       });
       
-      // Navigate to product details
-      navigation.navigate('ProductDetails', { inspectionId: inspection.id });
+      // Navigate to Camera Capture
+      navigation.navigate('CameraCapture', { inspectionId: inspection.id });
     } catch (e) {
       console.error('Failed to create inspection', e);
       Alert.alert('Error', 'Failed to create inspection locally.');

@@ -6,6 +6,8 @@ import { useAuth } from '../providers/AuthProvider';
 import LoginScreen from '../screens/auth/LoginScreen';
 import HomeScreen from '../screens/main/HomeScreen';
 import NewInspectionScreen from '../screens/main/NewInspectionScreen';
+import CameraCaptureScreen from '../screens/main/CameraCaptureScreen';
+import ImageReviewScreen from '../screens/main/ImageReviewScreen';
 import ProductDetailsScreen from '../screens/main/ProductDetailsScreen';
 
 const Stack = createNativeStackNavigator();
@@ -37,6 +39,8 @@ export default function AppNavigator() {
           <>
             <Stack.Screen name="Home" component={HomeScreen} />
             <Stack.Screen name="NewInspection" component={NewInspectionScreen} />
+            <Stack.Screen name="CameraCapture" component={CameraCaptureScreen} />
+            <Stack.Screen name="ImageReview" component={ImageReviewScreen} />
             <Stack.Screen name="ProductDetails" component={ProductDetailsScreen} />
           </>
         ) : (
