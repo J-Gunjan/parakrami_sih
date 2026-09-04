@@ -4,22 +4,12 @@
     "slug": "nyayalabel-ai-mobile",
     "version": "0.1.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
     "userInterfaceStyle": "dark",
-    "splash": {
-      "image": "./assets/splash.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#020617"
-    },
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "gov.in.nyayalabel.officer"
     },
     "android": {
-      "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#020617"
-      },
       "package": "gov.in.nyayalabel.officer",
       "permissions": [
         "CAMERA",
@@ -29,8 +19,10 @@
         "WRITE_EXTERNAL_STORAGE"
       ]
     },
-    "web": {
-      "favicon": "./assets/favicon.png"
-    }
+    "web": {},
+    "plugins": [
+      "@morrowdigital/watermelondb-expo-plugin",
+      "expo-secure-store"
+    ]
   }
 }
