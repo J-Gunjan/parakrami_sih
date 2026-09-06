@@ -9,6 +9,7 @@ import NewInspectionScreen from '../screens/main/NewInspectionScreen';
 import CameraCaptureScreen from '../screens/main/CameraCaptureScreen';
 import ImageReviewScreen from '../screens/main/ImageReviewScreen';
 import ProductDetailsScreen from '../screens/main/ProductDetailsScreen';
+import InspectionSummaryScreen from '../screens/main/InspectionSummaryScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -42,6 +43,7 @@ export default function AppNavigator() {
             <Stack.Screen name="CameraCapture" component={CameraCaptureScreen} />
             <Stack.Screen name="ImageReview" component={ImageReviewScreen} />
             <Stack.Screen name="ProductDetails" component={ProductDetailsScreen} />
+            <Stack.Screen name="InspectionSummary" component={InspectionSummaryScreen} />
           </>
         ) : (
           <Stack.Screen name="Login" component={LoginScreen} />

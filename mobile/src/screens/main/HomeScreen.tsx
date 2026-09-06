@@ -62,7 +62,11 @@ export default function HomeScreen({ navigation }: any) {
     }
 
     return (
-      <View style={styles.inspectionCard}>
+      <TouchableOpacity 
+        style={styles.inspectionCard}
+        activeOpacity={0.7}
+        onPress={() => navigation.navigate('InspectionSummary', { inspectionId: item.id })}
+      >
         <View style={styles.inspectionHeader}>
           <Text style={styles.shopName}>{item.shopName}</Text>
           <View style={[styles.inlineBadge, { borderColor: badgeColor }]}>
@@ -75,7 +79,7 @@ export default function HomeScreen({ navigation }: any) {
         <Text style={styles.inspectionAddress}>
           {item.address || 'No address provided'}
         </Text>
-      </View>
+      </TouchableOpacity>
     );
   };
 

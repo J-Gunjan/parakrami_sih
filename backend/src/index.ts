@@ -1,14 +1,13 @@
-import dotenv from 'dotenv';
+import 'dotenv/config';
 import { createApp } from './app.js';
-
-dotenv.config();
 
 const PORT = process.env.PORT || 5000;
 const app = createApp();
 
-const server = app.listen(PORT, () => {
-  console.log(`⚖️  NyayaLabel AI Backend REST API listening on port ${PORT}`);
+const server = app.listen(Number(PORT), '0.0.0.0', () => {
+  console.log(`⚖️  NyayaLabel AI Backend REST API listening on 0.0.0.0:${PORT}`);
   console.log(`📡 Health check available at: http://localhost:${PORT}/api/health`);
+  console.log(`🔑 GEMINI_API_KEY configured: ${!!process.env.GEMINI_API_KEY}`);
 });
 
 // Graceful shutdown handling
