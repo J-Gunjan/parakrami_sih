@@ -6,7 +6,7 @@ export default class CapturedImage extends Model {
   static table = 'captured_images';
 
   static associations = {
-    inspections: { type: 'belongs_to', key: 'inspection_id' as const },
+    inspections: { type: 'belongs_to' as const, key: 'inspection_id' as const },
   };
 
   @text('inspection_id') inspectionId!: string;

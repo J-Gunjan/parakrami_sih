@@ -89,10 +89,10 @@ export default function HomeScreen({ navigation }: any) {
 
       {/* Header bar */}
       <View style={styles.header}>
-        <View>
+        <TouchableOpacity onLongPress={() => navigation.navigate('Debug')} delayLongPress={800}>
           <Text style={styles.appTitle}>NyayaLabel AI</Text>
           <Text style={styles.appSubtitle}>Legal Metrology Officer App (SIH26034)</Text>
-        </View>
+        </TouchableOpacity>
         <View style={styles.statusBadge}>
           <Text style={styles.statusText}>{syncStatus.toUpperCase()}</Text>
         </View>

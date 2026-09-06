@@ -16,11 +16,12 @@ import { ProductRepository } from '../../repositories/ProductRepository';
 import { ImageRepository } from '../../repositories/ImageRepository';
 import { DeclarationFields } from '@nyayalabel/shared';
 import { ocrService } from '../../services/OCRService';
-import { SemanticMappingService } from '../../services/SemanticMappingService';
+import { SemanticMappingService, MappedField } from '../../services/SemanticMappingService';
 import NetInfo from '@react-native-community/netinfo';
 import { database } from '../../database';
 import SyncQueueItem from '../../database/models/SyncQueueItem';
-import { getBackendUrl } from '../../utils/api';
+import { getBackendUrl, checkBackendHealth } from '../../utils/api';
+import { ruleEvaluationService } from '../../services/RuleEvaluationService';
 
 export default function ProductDetailsScreen({ route, navigation }: any) {
   const { inspectionId, scannedBarcode } = route.params || {};
@@ -45,6 +46,15 @@ export default function ProductDetailsScreen({ route, navigation }: any) {
   const [isExtracting, setIsExtracting] = useState(false);
   const [aiSuggestedFields, setAiSuggestedFields] = useState<Set<string>>(new Set());
   const [residualBlocks, setResidualBlocks] = useState<any[]>([]);
+  const [rawMappedFields, setRawMappedFields] = useState<Record<string, MappedField>>({});
+  
+  const [backendStatus, setBackendStatus] = useState<{ connected: boolean; reason?: string } | null>(null);
+  const [isDemoFallback, setIsDemoFallback] = useState(false);
+
+  React.useEffect(() => {
+    // Check backend health immediately on mount
+    checkBackendHealth().then(setBackendStatus);
+  }, []);
 
   React.useEffect(() => {
     const runOCR = async () => {
@@ -61,6 +71,10 @@ export default function ProductDetailsScreen({ route, navigation }: any) {
         const { mappedFields, residualBlocks: residuals } = mappingService.mapFields(result.blocks, result.geminiFields);
 
         setResidualBlocks(residuals);
+        
+        if (result.geminiFields?._isDemoFallback) {
+           setIsDemoFallback(true);
+        }
 
         const newForm = { ...form };
         const suggested = new Set<string>();
@@ -76,6 +90,14 @@ export default function ProductDetailsScreen({ route, navigation }: any) {
 
         setForm(newForm);
         setAiSuggestedFields(suggested);
+        
+        // Store raw mapped fields for rule evaluation (preserves bounding boxes)
+        setRawMappedFields({
+           _rawNetQuantity: mappedFields.netQuantity,
+           _rawMrp: mappedFields.mrp,
+           _rawMfgDate: mappedFields.mfgDate,
+           _rawExpDate: mappedFields.expDate
+        } as any);
 
         // If online and residuals exist, we could enrich here immediately.
         // For simplicity and resilience, we'll handle enrichment during the Save step.
@@ -190,6 +212,12 @@ export default function ProductDetailsScreen({ route, navigation }: any) {
         });
       }
 
+      // Evaluate Phase 6 Rules (Physical Measurement, etc.)
+      await ruleEvaluationService.evaluateProduct(product.id, inspectionId, {
+         ...finalFields,
+         ...rawMappedFields,
+      });
+
       Alert.alert('Success', 'Product saved locally.', [
         { text: 'OK', onPress: () => navigation.navigate('Home') }
       ]);
@@ -213,6 +241,25 @@ export default function ProductDetailsScreen({ route, navigation }: any) {
       </View>
 
       <ScrollView contentContainerStyle={styles.content}>
+        
+        {backendStatus !== null && (
+          <View style={[styles.statusBox, backendStatus.connected ? styles.statusBoxSuccess : styles.statusBoxError]}>
+            <Text style={[styles.statusText, backendStatus.connected ? styles.statusTextSuccess : styles.statusTextError]}>
+              Backend: {backendStatus.connected ? 'CONNECTED' : 'NOT CONNECTED'}
+            </Text>
+            {!backendStatus.connected && backendStatus.reason && (
+              <Text style={styles.statusReason}>{backendStatus.reason}</Text>
+            )}
+          </View>
+        )}
+
+        {isDemoFallback && (
+          <View style={styles.demoBox}>
+            <Text style={styles.demoTitle}>⚠ DEMO FALLBACK ACTIVE</Text>
+            <Text style={styles.demoDesc}>OCR service unavailable. Using demo fallback data.</Text>
+          </View>
+        )}
+
         <View style={styles.infoBox}>
           <Text style={styles.infoText}>
             Enter the details as seen on the packaged commodity.
@@ -409,6 +456,16 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(56, 189, 248, 0.2)',
   },
   infoText: { color: '#7dd3fc', fontSize: 13 },
+  statusBox: { padding: 12, borderRadius: 8, borderWidth: 1, marginBottom: -4 },
+  statusBoxSuccess: { backgroundColor: 'rgba(16, 185, 129, 0.1)', borderColor: 'rgba(16, 185, 129, 0.3)' },
+  statusBoxError: { backgroundColor: 'rgba(239, 68, 68, 0.1)', borderColor: 'rgba(239, 68, 68, 0.3)' },
+  statusText: { fontSize: 13, fontWeight: '700' },
+  statusTextSuccess: { color: '#34d399' },
+  statusTextError: { color: '#f87171' },
+  statusReason: { color: '#fca5a5', fontSize: 11, marginTop: 4 },
+  demoBox: { backgroundColor: 'rgba(245, 158, 11, 0.15)', padding: 12, borderRadius: 8, borderWidth: 1, borderColor: '#f59e0b', marginBottom: -4 },
+  demoTitle: { color: '#fbbf24', fontSize: 14, fontWeight: 'bold' },
+  demoDesc: { color: '#fcd34d', fontSize: 12, marginTop: 2 },
   extractingBanner: { flexDirection: 'row', backgroundColor: 'rgba(56, 189, 248, 0.1)', padding: 12, borderRadius: 8, alignItems: 'center' },
   extractingText: { color: '#38bdf8', fontSize: 13, fontWeight: '600' },
   inputGroup: { gap: 6 },

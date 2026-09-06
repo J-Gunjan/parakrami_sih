@@ -6,10 +6,10 @@ export default class Inspection extends Model {
   static table = 'inspections';
 
   static associations = {
-    officers: { type: 'belongs_to', key: 'officer_id' as const },
-    products: { type: 'has_many', foreignKey: 'inspection_id' as const },
-    captured_images: { type: 'has_many', foreignKey: 'inspection_id' as const },
-    violations: { type: 'has_many', foreignKey: 'inspection_id' as const },
+    officers: { type: 'belongs_to' as const, key: 'officer_id' as const },
+    products: { type: 'has_many' as const, foreignKey: 'inspection_id' as const },
+    captured_images: { type: 'has_many' as const, foreignKey: 'inspection_id' as const },
+    violations: { type: 'has_many' as const, foreignKey: 'inspection_id' as const },
   };
 
   @text('officer_id') officerId!: string;

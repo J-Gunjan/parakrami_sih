@@ -6,7 +6,7 @@ export default class Product extends Model {
   static table = 'products';
 
   static associations = {
-    inspections: { type: 'belongs_to', key: 'inspection_id' as const },
+    inspections: { type: 'belongs_to' as const, key: 'inspection_id' as const },
   };
 
   @text('inspection_id') inspectionId!: string;

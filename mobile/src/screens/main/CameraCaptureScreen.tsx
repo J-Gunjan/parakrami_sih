@@ -13,15 +13,17 @@ import { CameraView, useCameraPermissions } from 'expo-camera';
 import { QualityCheckService } from '../../services/QualityCheckService';
 import { ImageRepository } from '../../repositories/ImageRepository';
 import { StatusBar } from 'expo-status-bar';
+import { markerDetectionService } from '../../services/MarkerDetectionService';
 
-type CaptureType = 'front' | 'back' | 'side' | 'mrp';
+type CaptureType = 'front' | 'back' | 'side' | 'reference' | 'mrp';
 
-const SEQUENCE: CaptureType[] = ['front', 'back', 'side', 'mrp'];
+const SEQUENCE: CaptureType[] = ['front', 'back', 'side', 'reference', 'mrp'];
 
 const CAPTURE_LABELS: Record<CaptureType, string> = {
   front: 'Front Label',
   back: 'Back Label',
   side: 'Side (Optional)',
+  reference: 'Reference Marker (50mm)',
   mrp: 'MRP / Declaration',
 };
 
@@ -37,7 +39,7 @@ export default function CameraCaptureScreen({ route, navigation }: any) {
   
   const [capturedImages, setCapturedImages] = useState<Record<string, string>>({});
   const [isProcessing, setIsProcessing] = useState(false);
-  const [failureOverlay, setFailureOverlay] = useState<{ reason: string; uri: string } | null>(null);
+  const [failureOverlay, setFailureOverlay] = useState<{ reason: string; uri: string; type: 'quality' | 'marker'; qualityScore?: number } | null>(null);
   
   const [scannedBarcode, setScannedBarcode] = useState<string | null>(null);
 
@@ -85,9 +87,29 @@ export default function CameraCaptureScreen({ route, navigation }: any) {
       const quality = await QualityCheckService.analyzeImage(photo.uri);
 
       if (!quality.passed) {
-        setFailureOverlay({ reason: quality.reason || 'Poor Quality', uri: photo.uri });
+        setFailureOverlay({ reason: quality.reason || 'Poor Quality', uri: photo.uri, type: 'quality', qualityScore: quality.score });
         setIsProcessing(false);
         return;
+      }
+
+      // If capturing reference marker, perform marker validation immediately
+      if (currentTargetType === 'reference') {
+        const markerResult = await markerDetectionService.detectMarker(photo.uri);
+        if (!markerResult.success) {
+           setFailureOverlay({ 
+             reason: markerResult.errorMessage || 'Automatic marker detection is unavailable on this device/build.', 
+             uri: photo.uri,
+             type: 'marker',
+             qualityScore: quality.score
+           });
+           setIsProcessing(false);
+           return;
+        } else {
+           Alert.alert(
+             'Marker Detected', 
+             `Reference marker detected successfully.\nMeasured Width: ${Math.round(markerResult.pixelWidth || 0)}px`
+           );
+        }
       }
 
       // Save to local storage & repository
@@ -121,6 +143,37 @@ export default function CameraCaptureScreen({ route, navigation }: any) {
     }
   };
 
+  const handleContinueManually = async () => {
+    if (!failureOverlay) return;
+    setIsProcessing(true);
+    try {
+      await ImageRepository.create({
+        inspectionId,
+        tempUri: failureOverlay.uri,
+        imageType: currentTargetType,
+        qualityScore: failureOverlay.qualityScore || 1.0,
+      });
+
+      setCapturedImages(prev => ({ ...prev, [currentTargetType]: failureOverlay.uri }));
+      setFailureOverlay(null);
+
+      if (retakeType) {
+        navigation.goBack();
+      } else {
+        if (currentIndex < SEQUENCE.length - 1) {
+          setCurrentIndex(prev => prev + 1);
+        } else {
+          navigation.navigate('ImageReview', { inspectionId, scannedBarcode });
+        }
+      }
+    } catch (e) {
+      console.error(e);
+      Alert.alert('Error', 'Failed to save image.');
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
   const skipOptional = () => {
     if (currentTargetType === 'side') {
       if (currentIndex < SEQUENCE.length - 1) {
@@ -143,11 +196,21 @@ export default function CameraCaptureScreen({ route, navigation }: any) {
           <View style={styles.failureOverlay}>
             <Image source={{ uri: failureOverlay.uri }} style={StyleSheet.absoluteFillObject} blurRadius={10} />
             <View style={styles.failureContent}>
-              <Text style={styles.failureTitle}>Quality Check Failed</Text>
+              <Text style={styles.failureTitle}>
+                {failureOverlay.type === 'marker' ? 'Detection Unavailable' : 'Quality Check Failed'}
+              </Text>
               <Text style={styles.failureReason}>{failureOverlay.reason}</Text>
               <TouchableOpacity style={styles.retakeBtn} onPress={() => setFailureOverlay(null)}>
-                <Text style={styles.retakeBtnText}>Retake Photo</Text>
+                <Text style={styles.retakeBtnText}>
+                  Retake {failureOverlay.type === 'marker' ? 'Reference Card' : 'Photo'}
+                </Text>
               </TouchableOpacity>
+
+              {failureOverlay.type === 'marker' && (
+                <TouchableOpacity style={[styles.retakeBtn, { backgroundColor: '#38bdf8', marginTop: 12 }]} onPress={handleContinueManually}>
+                  <Text style={styles.retakeBtnText}>Manual Verification & Continue</Text>
+                </TouchableOpacity>
+              )}
             </View>
           </View>
         ) : (

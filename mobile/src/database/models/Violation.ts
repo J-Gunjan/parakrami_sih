@@ -6,7 +6,7 @@ export default class Violation extends Model {
   static table = 'violations';
 
   static associations = {
-    inspections: { type: 'belongs_to', key: 'inspection_id' as const },
+    inspections: { type: 'belongs_to' as const, key: 'inspection_id' as const },
   };
 
   @text('inspection_id') inspectionId!: string;
@@ -18,4 +18,12 @@ export default class Violation extends Model {
   @field('confidence') confidence!: number;
   @text('evidence_region') evidenceRegion?: string;
   @field('inspector_verified') inspectorVerified!: boolean;
+
+  // Calibration telemetry
+  @field('reference_width_mm') referenceWidthMm?: number;
+  @field('reference_width_pixels') referenceWidthPixels?: number;
+  @field('detected_text_height_pixels') detectedTextHeightPixels?: number;
+  @field('computed_scale') computedScale?: number;
+  @field('computed_physical_height') computedPhysicalHeight?: number;
+  @field('calibration_confidence') calibrationConfidence?: number;
 }

@@ -56,6 +56,13 @@ export default appSchema({
         { name: 'confidence', type: 'number' },
         { name: 'evidence_region', type: 'string', isOptional: true },
         { name: 'inspector_verified', type: 'boolean' },
+        // Calibration telemetry for physical measurement
+        { name: 'reference_width_mm', type: 'number', isOptional: true },
+        { name: 'reference_width_pixels', type: 'number', isOptional: true },
+        { name: 'detected_text_height_pixels', type: 'number', isOptional: true },
+        { name: 'computed_scale', type: 'number', isOptional: true },
+        { name: 'computed_physical_height', type: 'number', isOptional: true },
+        { name: 'calibration_confidence', type: 'number', isOptional: true },
       ],
     }),
     tableSchema({

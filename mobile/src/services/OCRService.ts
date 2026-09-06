@@ -71,6 +71,9 @@ export class CloudOCRService implements OCRService {
 
       console.log(`[CloudOCR] Making POST request to: ${this.apiUrl}`);
 
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 seconds
+
       const response = await fetch(this.apiUrl, {
         method: 'POST',
         headers: {
@@ -78,7 +81,10 @@ export class CloudOCRService implements OCRService {
           'Content-Type': 'multipart/form-data',
         },
         body: formData,
+        signal: controller.signal
       });
+      
+      clearTimeout(timeoutId);
 
       console.log(`[CloudOCR] Response status: ${response.status}`);
 
@@ -152,12 +158,20 @@ export class UnifiedOCRService implements OCRService {
         };
       } catch (error: any) {
         console.error('❌ Cloud OCR entirely failed:', error.message || error);
-        if (__DEV__) {
-          // Do not silently fallback while debugging so we can see the exact error on screen
-          throw error;
-        }
-        console.warn('Cloud OCR failed, falling back purely to On-Device OCR...');
-        return localResult;
+        
+        let reason = error.message || 'OCR Service Unavailable';
+        if (error.name === 'AbortError') reason = 'Request timed out';
+        
+        return {
+          blocks: localResult.blocks,
+          geminiFields: {
+             _isDemoFallback: true,
+             _fallbackReason: reason,
+             productName: { value: 'Demo Product [OCR Unavailable]', confidence: 0.1 },
+             mrp: { value: '100.00 (Demo)', confidence: 0.1 },
+             netQuantity: { value: '500g (Demo)', confidence: 0.1 },
+          }
+        };
       }
     } else {
       console.log('Offline: Using On-Device OCR only...');

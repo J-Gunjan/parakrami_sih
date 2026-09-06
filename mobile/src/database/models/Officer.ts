@@ -5,7 +5,7 @@ export default class Officer extends Model {
   static table = 'officers';
 
   static associations = {
-    inspections: { type: 'has_many', foreignKey: 'officer_id' as const },
+    inspections: { type: 'has_many' as const, foreignKey: 'officer_id' as const },
   };
 
   @text('name') name!: string;

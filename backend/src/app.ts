@@ -10,14 +10,21 @@ export function createApp(): Express {
 
   // Security and utility middleware
   app.use(helmet());
+  
+  // Configure CORS securely but broadly enough for local mobile dev (fetch from Android LAN IPs)
   app.use(
     cors({
       origin: process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.split(',') : '*',
-      credentials: true,
+      methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+      allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
+      // If origin is '*', credentials cannot be true. For demo purposes, we disable credentials since we don't use cookies from the mobile app.
+      credentials: false,
     })
   );
-  app.use(express.json({ limit: '50mb' }));
-  app.use(express.urlencoded({ extended: true, limit: '50mb' }));
+  
+  // Increase payload limits significantly to handle high-res 12MP camera image buffers
+  app.use(express.json({ limit: '100mb' }));
+  app.use(express.urlencoded({ extended: true, limit: '100mb' }));
   app.use(morgan('dev'));
 
   // Root welcome route
