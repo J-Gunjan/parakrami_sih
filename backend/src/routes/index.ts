@@ -1,6 +1,8 @@
 import { Router } from 'express';
 import { healthRouter } from './health.routes.js';
 import ocrRouter from './ocr.routes.js';
+import { rulesRouter } from './rules.routes.js';
+import { syncRouter } from './sync.routes.js';
 
 export const apiRouter = Router();
 
@@ -9,6 +11,12 @@ apiRouter.use('/', healthRouter);
 
 // OCR extraction & enrichment endpoints
 apiRouter.use('/ocr', ocrRouter);
+
+// Rule Engine endpoints
+apiRouter.use('/rules', rulesRouter);
+
+// Sync endpoints
+apiRouter.use('/inspections/sync', syncRouter);
 
 // Stubs for future phases
 apiRouter.get('/v1/inspections/stub', (_req, res) => {

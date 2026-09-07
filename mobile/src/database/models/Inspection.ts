@@ -23,6 +23,7 @@ export default class Inspection extends Model {
   @date('created_at') createdAt!: number;
   @text('status') status!: string;
   @text('sync_status') apiSyncStatus!: string;
+  @text('compliance_status') complianceStatus?: string;
 
   @children('products') products!: any;
   @children('captured_images') capturedImages!: any;

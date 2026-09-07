@@ -8,6 +8,7 @@ import {
   ScrollView,
   ActivityIndicator,
   FlatList,
+  Image,
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { useFocusEffect } from '@react-navigation/native';
@@ -15,6 +16,7 @@ import { database } from '../../database';
 import Inspection from '../../database/models/Inspection';
 import Product from '../../database/models/Product';
 import Violation from '../../database/models/Violation';
+import CapturedImage from '../../database/models/CapturedImage';
 import { ProductRepository } from '../../repositories/ProductRepository';
 
 export default function InspectionSummaryScreen({ route, navigation }: any) {
@@ -23,6 +25,7 @@ export default function InspectionSummaryScreen({ route, navigation }: any) {
   const [inspection, setInspection] = useState<Inspection | null>(null);
   const [products, setProducts] = useState<Product[]>([]);
   const [violations, setViolations] = useState<Violation[]>([]);
+  const [images, setImages] = useState<CapturedImage[]>([]);
   const [loading, setLoading] = useState(true);
 
   useFocusEffect(
@@ -30,15 +33,25 @@ export default function InspectionSummaryScreen({ route, navigation }: any) {
       let isActive = true;
       const fetchDetails = async () => {
         try {
+          // Trigger a sync if online
+          const { syncManager } = require('../../services/SyncManager');
+          const syncResult = await syncManager.syncPendingInspections();
+          
+          if (syncResult.success > 0) {
+            console.log(`[SYNC] Refreshing UI after successful sync`);
+          }
+
           const ins = await database.get<Inspection>('inspections').find(inspectionId);
           const prods = await ProductRepository.listForInspection(inspectionId);
           const viols = await database.get<Violation>('violations').query().fetch();
           const insViols = viols.filter(v => v.inspectionId === inspectionId);
+          const imgs = await ins.capturedImages.fetch();
 
           if (isActive) {
             setInspection(ins);
             setProducts(prods);
             setViolations(insViols);
+            setImages(imgs);
             setLoading(false);
           }
         } catch (e) {
@@ -109,7 +122,24 @@ export default function InspectionSummaryScreen({ route, navigation }: any) {
             <Text style={styles.shopName}>{inspection.shopName}</Text>
             <Text style={styles.address}>{inspection.address}</Text>
             <Text style={styles.address}>{inspection.market}, {inspection.district}</Text>
+            <Text style={styles.address}>Checked on: {new Date(inspection.createdAt).toLocaleString()}</Text>
           </View>
+        </View>
+
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>PICTURES CAPTURED</Text>
+          {images.length === 0 ? (
+            <Text style={styles.emptyText}>No pictures captured.</Text>
+          ) : (
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 12 }}>
+              {images.map(img => (
+                <View key={img.id} style={styles.imageWrapper}>
+                  <Image source={{ uri: img.localFilePath }} style={styles.capturedImage} />
+                  <Text style={styles.imageTypeText}>{img.imageType.toUpperCase()}</Text>
+                </View>
+              ))}
+            </ScrollView>
+          )}
         </View>
 
         <View style={styles.section}>
@@ -139,14 +169,24 @@ export default function InspectionSummaryScreen({ route, navigation }: any) {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>COMPLIANCE RESULTS</Text>
           
-          {inspection.syncStatus !== 'synced' ? (
+          {inspection.apiSyncStatus !== 'synced' ? (
              <View style={styles.card}>
                <Text style={styles.warningText}>Offline Mode: Rules are evaluated on the backend. Please sync this inspection to view compliance results.</Text>
              </View>
-          ) : violations.length === 0 ? (
-             <Text style={styles.emptyText}>No violations found. Product is compliant.</Text>
+          ) : !inspection.complianceStatus ? (
+             <Text style={styles.emptyText}>Evaluation failed or no rules matched.</Text>
           ) : (
-             <FlatList
+             <>
+               <View style={[styles.card, { marginBottom: 16 }]}>
+                 <Text style={[styles.statusBadge, 
+                   inspection.complianceStatus === 'FAIL' ? styles.bgFail : 
+                   inspection.complianceStatus === 'PASS' ? styles.bgPass : styles.bgReview,
+                   { fontSize: 16, textAlign: 'center' }
+                 ]}>
+                   OVERALL STATUS: {inspection.complianceStatus}
+                 </Text>
+               </View>
+               <FlatList
                data={violations}
                keyExtractor={(item) => item.id}
                scrollEnabled={false}
@@ -182,7 +222,8 @@ export default function InspectionSummaryScreen({ route, navigation }: any) {
                    <Text style={styles.detailText}>Severity: {item.severity}</Text>
                  </View>
                )}
-             />
+               />
+             </>
           )}
         </View>
 
@@ -236,5 +277,8 @@ const styles = StyleSheet.create({
   traceabilityText: { color: '#cbd5e1', fontSize: 12, fontFamily: 'monospace' },
   detailText: { color: '#94a3b8', fontSize: 13 },
   unverifiedBanner: { backgroundColor: '#7f1d1d', padding: 6, borderRadius: 4, marginBottom: 8 },
-  unverifiedText: { color: '#fca5a5', fontSize: 11, fontWeight: 'bold', textAlign: 'center' }
+  unverifiedText: { color: '#fca5a5', fontSize: 11, fontWeight: 'bold', textAlign: 'center' },
+  imageWrapper: { position: 'relative', borderRadius: 8, overflow: 'hidden', borderWidth: 1, borderColor: '#1e293b' },
+  capturedImage: { width: 120, height: 160, resizeMode: 'cover' },
+  imageTypeText: { position: 'absolute', bottom: 0, left: 0, right: 0, backgroundColor: 'rgba(0,0,0,0.6)', color: '#fff', fontSize: 10, textAlign: 'center', paddingVertical: 4, fontWeight: 'bold' }
 });

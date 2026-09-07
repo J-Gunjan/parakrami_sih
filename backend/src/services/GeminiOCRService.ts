@@ -63,17 +63,17 @@ For fields like Net Quantity, separate the value and unit if possible (e.g. "500
           type: Type.OBJECT,
           description: "Structured extraction of key product details.",
           properties: {
-            productName: { type: Type.STRING },
-            manufacturer: { type: Type.STRING },
-            packer: { type: Type.STRING },
-            importer: { type: Type.STRING },
-            countryOfOrigin: { type: Type.STRING },
-            netQuantity: { type: Type.STRING },
-            mrp: { type: Type.STRING },
-            manufacturingDate: { type: Type.STRING },
-            expiryOrBestBefore: { type: Type.STRING },
-            lotBatch: { type: Type.STRING },
-            consumerCare: { type: Type.STRING },
+            productName: { type: Type.STRING, nullable: true },
+            manufacturer: { type: Type.STRING, nullable: true },
+            packer: { type: Type.STRING, nullable: true },
+            importer: { type: Type.STRING, nullable: true },
+            countryOfOrigin: { type: Type.STRING, nullable: true },
+            netQuantity: { type: Type.STRING, nullable: true },
+            mrp: { type: Type.STRING, nullable: true },
+            manufacturingDate: { type: Type.STRING, nullable: true },
+            expiryOrBestBefore: { type: Type.STRING, nullable: true },
+            lotBatch: { type: Type.STRING, nullable: true },
+            consumerCare: { type: Type.STRING, nullable: true },
           },
         }
       },
@@ -83,7 +83,7 @@ For fields like Net Quantity, separate the value and unit if possible (e.g. "500
     try {
       const response = await aiClient.models.generateContent({
         model: this.modelName,
-        contents: [imagePart, prompt],
+        contents: [imagePart, { text: prompt }],
         config: {
           responseMimeType: "application/json",
           responseSchema: schema,

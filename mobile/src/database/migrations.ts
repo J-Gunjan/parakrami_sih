@@ -50,5 +50,16 @@ export default schemaMigrations({
         }),
       ],
     },
+    {
+      toVersion: 5,
+      steps: [
+        addColumns({
+          table: 'inspections',
+          columns: [
+            { name: 'compliance_status', type: 'string', isOptional: true },
+          ],
+        }),
+      ],
+    },
   ],
 });

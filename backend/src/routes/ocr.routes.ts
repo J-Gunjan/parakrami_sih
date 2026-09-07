@@ -1,13 +1,15 @@
 import { Router, Request, Response } from 'express';
 import multer from 'multer';
-import { GeminiOCRService } from '../services/GeminiOCRService';
-import { GeminiLLMEnrichmentService } from '../services/LLMEnrichmentService';
-import { OCRBlock } from '../services/CloudOCRService';
+import { GeminiOCRService } from '../services/GeminiOCRService.js';
+import { OcrSpaceService } from '../services/OcrSpaceService.js';
+import { GeminiLLMEnrichmentService } from '../services/LLMEnrichmentService.js';
+import { OCRBlock } from '../services/CloudOCRService.js';
 
 const router = Router();
 const upload = multer({ storage: multer.memoryStorage() });
 
-const cloudOCR = new GeminiOCRService();
+const geminiOCR = new GeminiOCRService();
+const ocrSpace = new OcrSpaceService();
 const llmEnrichment = new GeminiLLMEnrichmentService();
 
 router.post('/extract', upload.single('image'), async (req: Request, res: Response) => {
@@ -16,10 +18,22 @@ router.post('/extract', upload.single('image'), async (req: Request, res: Respon
       return res.status(400).json({ error: 'No image file provided' });
     }
     
-    // Pass req.file.buffer to Gemini
-    const result = await cloudOCR.extractText(req.file.buffer);
+    // Run both OCR.space (for spatial blocks) and Gemini (for semantic fields) in parallel
+    const [ocrSpaceResult, geminiResult] = await Promise.all([
+      ocrSpace.extractText(req.file.buffer).catch(err => {
+        console.error("OCR.space failed, falling back:", err);
+        return { blocks: [], rawText: "" };
+      }),
+      geminiOCR.extractText(req.file.buffer)
+    ]);
     
-    res.json(result); // Returns { blocks, geminiFields, rawText }
+    const result = {
+      blocks: ocrSpaceResult.blocks.length > 0 ? ocrSpaceResult.blocks : geminiResult.blocks,
+      rawText: ocrSpaceResult.rawText || geminiResult.rawText,
+      geminiFields: geminiResult.geminiFields
+    };
+
+    res.json(result);
   } catch (error: any) {
     console.error("Cloud OCR Endpoint Error:", error.message || error);
     res.status(500).json({ 

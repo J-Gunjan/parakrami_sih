@@ -1,7 +1,7 @@
 import { appSchema, tableSchema } from '@nozbe/watermelondb';
 
 export default appSchema({
-  version: 4,
+  version: 5,
   tables: [
     tableSchema({
       name: 'officers',
@@ -24,6 +24,7 @@ export default appSchema({
         { name: 'created_at', type: 'number' },
         { name: 'status', type: 'string' },
         { name: 'sync_status', type: 'string' },
+        { name: 'compliance_status', type: 'string', isOptional: true },
       ],
     }),
     tableSchema({

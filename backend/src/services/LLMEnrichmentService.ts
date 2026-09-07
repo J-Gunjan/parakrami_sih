@@ -39,11 +39,11 @@ ${fullText}
     const schema = {
       type: Type.OBJECT,
       properties: {
-        manufacturerName: { type: Type.STRING },
-        manufacturerAddress: { type: Type.STRING },
-        packer: { type: Type.STRING },
-        importer: { type: Type.STRING },
-        consumerCare: { type: Type.STRING }
+        manufacturerName: { type: Type.STRING, nullable: true },
+        manufacturerAddress: { type: Type.STRING, nullable: true },
+        packer: { type: Type.STRING, nullable: true },
+        importer: { type: Type.STRING, nullable: true },
+        consumerCare: { type: Type.STRING, nullable: true }
       }
     };
 
