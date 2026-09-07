@@ -1,7 +1,7 @@
 import { appSchema, tableSchema } from '@nozbe/watermelondb';
 
 export default appSchema({
-  version: 3,
+  version: 4,
   tables: [
     tableSchema({
       name: 'officers',
@@ -50,12 +50,24 @@ export default appSchema({
       columns: [
         { name: 'inspection_id', type: 'string', isIndexed: true },
         { name: 'rule_id', type: 'string' },
+        { name: 'rule_code', type: 'string' },
         { name: 'rule_version', type: 'string' },
+        { name: 'status', type: 'string' }, // PASS, FAIL, REVIEW, NOT_APPLICABLE
         { name: 'observed_value', type: 'string' },
         { name: 'expected_value', type: 'string' },
+        { name: 'reason', type: 'string' },
+        { name: 'severity', type: 'string' },
         { name: 'confidence', type: 'number' },
         { name: 'evidence_region', type: 'string', isOptional: true },
         { name: 'inspector_verified', type: 'boolean' },
+        
+        // Legal Traceability
+        { name: 'source_act', type: 'string' },
+        { name: 'source_rule', type: 'string' },
+        { name: 'source_notification', type: 'string', isOptional: true },
+        { name: 'source_reference', type: 'string', isOptional: true },
+        { name: 'verification_status', type: 'string' },
+
         // Calibration telemetry for physical measurement
         { name: 'reference_width_mm', type: 'number', isOptional: true },
         { name: 'reference_width_pixels', type: 'number', isOptional: true },

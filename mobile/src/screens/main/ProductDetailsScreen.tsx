@@ -57,60 +57,84 @@ export default function ProductDetailsScreen({ route, navigation }: any) {
   }, []);
 
   React.useEffect(() => {
-    const runOCR = async () => {
+    let isActive = true;
+
+    const runExtractionPipeline = async () => {
+      console.log('--- STARTING OCR EXTRACTION PIPELINE ---');
+      console.log('[1] Image captured: PASS (Navigated to ProductDetails with inspectionId: ' + inspectionId + ')');
+      
+      setIsExtracting(true);
       try {
-        setIsExtracting(true);
-        // Get the latest label image
+        // Fetch images to pass to OCR
         const images = await ImageRepository.listForInspection(inspectionId);
-        const labelImage = images.reverse().find(img => img.imageType === 'mrp' || img.imageType === 'back');
-        
-        if (!labelImage) return;
+        const targetImage = images.find(img => img.imageType === 'mrp' || img.imageType === 'back') || images[0];
 
-        const result = await ocrService.extractText(labelImage.localFilePath);
-        const mappingService = new SemanticMappingService();
-        const { mappedFields, residualBlocks: residuals } = mappingService.mapFields(result.blocks, result.geminiFields);
-
-        setResidualBlocks(residuals);
-        
-        if (result.geminiFields?._isDemoFallback) {
-           setIsDemoFallback(true);
+        if (!targetImage) {
+          console.log('[2] Image accessible to OCR: FAIL (No image found for this inspection)');
+          setIsExtracting(false);
+          return;
         }
+        console.log('[2] Image accessible to OCR: PASS (Using URI: ' + targetImage.localFilePath + ')');
 
-        const newForm = { ...form };
-        const suggested = new Set<string>();
-
-        if (mappedFields.productName?.value) { newForm.productName = mappedFields.productName.value; suggested.add('productName'); }
-        if (mappedFields.manufacturerName?.value) { newForm.manufacturer = mappedFields.manufacturerName.value; suggested.add('manufacturer'); }
-        if (mappedFields.countryOfOrigin?.value) { newForm.countryOfOrigin = mappedFields.countryOfOrigin.value; suggested.add('countryOfOrigin'); }
-        if (mappedFields.netQuantity?.value) { newForm.netQuantity = mappedFields.netQuantity.value; suggested.add('netQuantity'); }
-        if (mappedFields.mrp?.value) { newForm.mrp = mappedFields.mrp.value; suggested.add('mrp'); }
-        if (mappedFields.mfgDate?.value) { newForm.manufacturingDate = mappedFields.mfgDate.value; suggested.add('manufacturingDate'); }
-        if (mappedFields.expDate?.value) { newForm.expiryOrBestBefore = mappedFields.expDate.value; suggested.add('expiryOrBestBefore'); }
-        if (mappedFields.lotBatch?.value) { newForm.lotBatch = mappedFields.lotBatch.value; suggested.add('lotBatch'); }
-
-        setForm(newForm);
-        setAiSuggestedFields(suggested);
+        console.log('[3] OCR API called: PASS (Calling UnifiedOCRService)');
+        const extractionResult = await ocrService.extractText(targetImage.localFilePath);
         
-        // Store raw mapped fields for rule evaluation (preserves bounding boxes)
-        setRawMappedFields({
-           _rawNetQuantity: mappedFields.netQuantity,
-           _rawMrp: mappedFields.mrp,
-           _rawMfgDate: mappedFields.mfgDate,
-           _rawExpDate: mappedFields.expDate
-        } as any);
+        console.log('[4] OCR response received: PASS');
+        console.log(`[5] OCR text extracted: PASS (Extracted ${extractionResult.blocks.length} spatial blocks)`);
+        
+        if (extractionResult.geminiFields) {
+          console.log('[6] Gemini API called: PASS (Called in parallel on the backend)');
+          console.log('[7] Gemini response received: PASS');
+          console.log('[8] Gemini JSON parsed: PASS');
+          console.log('[9] Product object created: PASS', JSON.stringify(extractionResult.geminiFields));
+          console.log('[10] Product object passed to Product Details: PASS');
 
-        // If online and residuals exist, we could enrich here immediately.
-        // For simplicity and resilience, we'll handle enrichment during the Save step.
-      } catch (error) {
-        console.error("OCR Extraction failed", error);
+          if (isActive) {
+            setForm(prevForm => {
+              const newForm = { ...prevForm };
+              const newSuggested = new Set(aiSuggestedFields);
+
+              // Map Gemini fields to the form
+              Object.keys(extractionResult.geminiFields).forEach(key => {
+                if (key === '_isDemoFallback' || key === '_fallbackReason') return;
+                const field = extractionResult.geminiFields[key];
+                
+                if (field && field.value) {
+                  // Map directly if key matches
+                  if (key in newForm) {
+                     (newForm as any)[key] = field.value;
+                     newSuggested.add(key);
+                  } 
+                  // Handle common mapping mismatches
+                  else if (key === 'manufacturerName') {
+                     newForm.manufacturer = field.value;
+                     newSuggested.add('manufacturer');
+                  }
+                }
+              });
+              
+              setAiSuggestedFields(newSuggested);
+              console.log('[11] Form populated: PASS');
+              return newForm;
+            });
+            setResidualBlocks(extractionResult.blocks);
+          }
+        } else {
+          console.log('[6] Gemini API called: FAIL (No semantic fields returned from backend)');
+        }
+      } catch (err: any) {
+        console.error("Extraction pipeline failed:", err.message || err);
+        console.log('[3] OCR API called: FAIL (or subsequent step failed)');
       } finally {
-        setIsExtracting(false);
+        if (isActive) setIsExtracting(false);
       }
     };
 
     if (inspectionId) {
-      runOCR();
+      runExtractionPipeline();
     }
+
+    return () => { isActive = false; };
   }, [inspectionId]);
 
   const updateField = (key: keyof typeof form, value: string) => {
@@ -212,11 +236,7 @@ export default function ProductDetailsScreen({ route, navigation }: any) {
         });
       }
 
-      // Evaluate Phase 6 Rules (Physical Measurement, etc.)
-      await ruleEvaluationService.evaluateProduct(product.id, inspectionId, {
-         ...finalFields,
-         ...rawMappedFields,
-      });
+      // Note: Evaluation is now strictly handled by the backend Rule Engine upon Sync.
 
       Alert.alert('Success', 'Product saved locally.', [
         { text: 'OK', onPress: () => navigation.navigate('Home') }

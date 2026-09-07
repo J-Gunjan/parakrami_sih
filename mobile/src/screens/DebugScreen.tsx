@@ -2,10 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
 import { getBackendUrl, checkBackendHealth } from '../utils/api';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { syncManager } from '../services/SyncManager';
+import { database } from '../database';
+import Inspection from '../database/models/Inspection';
 
 export default function DebugScreen({ navigation }: any) {
   const [health, setHealth] = useState<any>(null);
   const [logs, setLogs] = useState<string[]>([]);
+  const [stats, setStats] = useState({ pending: 0, synced: 0, failed: 0 });
   
   const addLog = (msg: string) => setLogs(prev => [msg, ...prev].slice(0, 50));
 
@@ -16,8 +20,23 @@ export default function DebugScreen({ navigation }: any) {
     addLog(`Health Result: ${JSON.stringify(result)}`);
   };
 
+  const loadStats = async () => {
+    const inspections = await database.get<Inspection>('inspections').query().fetch();
+    const pending = inspections.filter(i => i.syncStatus !== 'synced').length;
+    const synced = inspections.filter(i => i.syncStatus === 'synced').length;
+    setStats({ pending, synced, failed: 0 });
+  };
+
+  const handleSync = async () => {
+    addLog('Starting Sync...');
+    const result = await syncManager.syncPendingInspections();
+    addLog(`Sync Complete: ${result.success} success, ${result.failed} failed`);
+    loadStats();
+  };
+
   useEffect(() => {
     testHealth();
+    loadStats();
   }, []);
 
 
@@ -35,8 +54,12 @@ export default function DebugScreen({ navigation }: any) {
         <Text style={styles.label}>Backend Health:</Text>
         <Text style={styles.value}>{health ? JSON.stringify(health) : 'Checking...'}</Text>
 
+        <Text style={styles.label}>Sync Stats:</Text>
+        <Text style={styles.value}>Pending: {stats.pending} | Synced: {stats.synced} | Failed: {stats.failed}</Text>
+
         <View style={styles.row}>
           <TouchableOpacity style={styles.btn} onPress={testHealth}><Text style={styles.btnText}>Test Backend</Text></TouchableOpacity>
+          <TouchableOpacity style={styles.btn} onPress={handleSync}><Text style={styles.btnText}>Sync Pending Inspections</Text></TouchableOpacity>
         </View>
 
         <Text style={styles.label}>Note:</Text>

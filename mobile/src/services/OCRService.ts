@@ -72,7 +72,7 @@ export class CloudOCRService implements OCRService {
       console.log(`[CloudOCR] Making POST request to: ${this.apiUrl}`);
 
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 seconds
+      const timeoutId = setTimeout(() => controller.abort(), 45000); // 45 seconds
 
       const response = await fetch(this.apiUrl, {
         method: 'POST',
