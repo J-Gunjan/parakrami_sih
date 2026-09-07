@@ -97,6 +97,9 @@ export class SyncManager {
                  v.sourceNotification = res.legalSource?.notification || '';
                  v.sourceReference = res.legalSource?.reference || '';
                  v.verificationStatus = res.verificationStatus || 'UNVERIFIED';
+                 v.aiExplanation = res.aiExplanation || '';
+                 v.evidenceRegion = res.evidenceRegion || '';
+                 v.evidenceImagePath = res.evidenceImagePath || '';
                  v.inspectorVerified = false;
                }));
              }

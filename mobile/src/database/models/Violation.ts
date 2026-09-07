@@ -21,6 +21,9 @@ export default class Violation extends Model {
   @text('severity') severity!: string;
   @field('confidence') confidence!: number;
   @text('evidence_region') evidenceRegion?: string;
+  @text('ai_explanation') aiExplanation?: string;
+  @text('evidence_image_path') evidenceImagePath?: string;
+  @text('inspector_note') inspectorNote?: string;
   @field('inspector_verified') inspectorVerified!: boolean;
 
   // Legal Traceability

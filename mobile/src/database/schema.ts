@@ -1,7 +1,7 @@
 import { appSchema, tableSchema } from '@nozbe/watermelondb';
 
 export default appSchema({
-  version: 5,
+  version: 6,
   tables: [
     tableSchema({
       name: 'officers',
@@ -60,6 +60,9 @@ export default appSchema({
         { name: 'severity', type: 'string' },
         { name: 'confidence', type: 'number' },
         { name: 'evidence_region', type: 'string', isOptional: true },
+        { name: 'ai_explanation', type: 'string', isOptional: true },
+        { name: 'evidence_image_path', type: 'string', isOptional: true },
+        { name: 'inspector_note', type: 'string', isOptional: true },
         { name: 'inspector_verified', type: 'boolean' },
         
         // Legal Traceability

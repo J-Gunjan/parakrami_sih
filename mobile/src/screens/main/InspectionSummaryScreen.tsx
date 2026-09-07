@@ -9,6 +9,8 @@ import {
   ActivityIndicator,
   FlatList,
   Image,
+  Modal,
+  TextInput
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { useFocusEffect } from '@react-navigation/native';
@@ -27,6 +29,34 @@ export default function InspectionSummaryScreen({ route, navigation }: any) {
   const [violations, setViolations] = useState<Violation[]>([]);
   const [images, setImages] = useState<CapturedImage[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedViolation, setSelectedViolation] = useState<Violation | null>(null);
+  const [inspectorNote, setInspectorNote] = useState('');
+
+  const getOverallOutcomeText = (status: string) => {
+    if (status === 'PASS') return 'COMPLIANT';
+    if (status === 'REVIEW') return 'REQUIRES MANUAL REVIEW';
+    if (status === 'FAIL') return 'POTENTIAL NON-COMPLIANCE';
+    return status;
+  };
+
+  const handleOverride = async (newStatus: string) => {
+    if (!selectedViolation) return;
+    try {
+      await database.write(async () => {
+        await selectedViolation.update(v => {
+          v.status = newStatus;
+          v.inspectorVerified = true;
+          v.inspectorNote = inspectorNote;
+        });
+      });
+      const viols = await database.get<Violation>('violations').query().fetch();
+      const insViols = viols.filter(v => v.inspectionId === inspectionId);
+      setViolations(insViols);
+      setSelectedViolation(null);
+    } catch (e) {
+      console.error('Failed to override', e);
+    }
+  };
 
   useFocusEffect(
     useCallback(() => {
@@ -183,7 +213,7 @@ export default function InspectionSummaryScreen({ route, navigation }: any) {
                    inspection.complianceStatus === 'PASS' ? styles.bgPass : styles.bgReview,
                    { fontSize: 16, textAlign: 'center' }
                  ]}>
-                   OVERALL STATUS: {inspection.complianceStatus}
+                   OVERALL STATUS: {getOverallOutcomeText(inspection.complianceStatus)}
                  </Text>
                </View>
                <FlatList
@@ -192,8 +222,21 @@ export default function InspectionSummaryScreen({ route, navigation }: any) {
                scrollEnabled={false}
                contentContainerStyle={{ gap: 12 }}
                renderItem={({ item }) => (
-                 <View style={[styles.violationCard, item.status === 'FAIL' ? styles.borderFail : item.status === 'PASS' ? styles.borderPass : styles.borderReview]}>
+                 <TouchableOpacity 
+                   activeOpacity={0.8}
+                   onPress={() => {
+                     setSelectedViolation(item);
+                     setInspectorNote(item.inspectorNote || '');
+                   }}
+                   style={[styles.violationCard, item.status === 'FAIL' ? styles.borderFail : item.status === 'PASS' ? styles.borderPass : styles.borderReview]}
+                 >
                    
+                   {inspection.apiSyncStatus !== 'synced' && (
+                     <View style={styles.offlineBanner}>
+                        <Text style={styles.offlineText}>⚠️ Will re-check on sync</Text>
+                     </View>
+                   )}
+
                    {item.verificationStatus === 'UNVERIFIED' && (
                      <View style={styles.unverifiedBanner}>
                        <Text style={styles.unverifiedText}>⚠️ LEGAL RULE — SOURCE VERIFICATION REQUIRED</Text>
@@ -220,7 +263,7 @@ export default function InspectionSummaryScreen({ route, navigation }: any) {
                    <Text style={styles.detailText}>Observed: {item.observedValue}</Text>
                    <Text style={styles.detailText}>Required: {item.expectedValue}</Text>
                    <Text style={styles.detailText}>Severity: {item.severity}</Text>
-                 </View>
+                 </TouchableOpacity>
                )}
                />
              </>
@@ -228,6 +271,61 @@ export default function InspectionSummaryScreen({ route, navigation }: any) {
         </View>
 
       </ScrollView>
+
+      <Modal visible={!!selectedViolation} transparent animationType="fade">
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <View style={styles.rowBetween}>
+              <Text style={styles.modalTitle}>Review Finding</Text>
+              <TouchableOpacity onPress={() => setSelectedViolation(null)}>
+                <Text style={styles.closeText}>Close</Text>
+              </TouchableOpacity>
+            </View>
+            
+            {selectedViolation && (
+              <ScrollView style={{ marginTop: 16 }}>
+                <Text style={styles.ruleCode}>{selectedViolation.ruleCode}</Text>
+                
+                {selectedViolation.aiExplanation ? (
+                  <View style={styles.explanationBox}>
+                    <Text style={styles.explanationTitle}>AI Explanation</Text>
+                    <Text style={styles.explanationText}>{selectedViolation.aiExplanation}</Text>
+                  </View>
+                ) : null}
+
+                {selectedViolation.evidenceImagePath ? (
+                  <View style={styles.evidenceContainer}>
+                     <Image source={{ uri: selectedViolation.evidenceImagePath }} style={styles.evidenceImage} />
+                     {selectedViolation.evidenceRegion ? (
+                       <View style={styles.evidenceRegionBox} />
+                     ) : null}
+                  </View>
+                ) : null}
+
+                <Text style={styles.label}>Inspector Note:</Text>
+                <TextInput 
+                  style={styles.input}
+                  value={inspectorNote}
+                  onChangeText={setInspectorNote}
+                  placeholder="Add your note here..."
+                  placeholderTextColor="#64748b"
+                  multiline
+                />
+
+                <View style={styles.actionButtons}>
+                  <TouchableOpacity style={[styles.btn, styles.bgPass]} onPress={() => handleOverride('PASS')}>
+                    <Text style={[styles.btnText, { color: '#10b981' }]}>Confirm PASS</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity style={[styles.btn, styles.bgFail]} onPress={() => handleOverride('FAIL')}>
+                    <Text style={[styles.btnText, { color: '#ef4444' }]}>Override to FAIL</Text>
+                  </TouchableOpacity>
+                </View>
+              </ScrollView>
+            )}
+          </View>
+        </View>
+      </Modal>
+
     </SafeAreaView>
   );
 }
@@ -280,5 +378,22 @@ const styles = StyleSheet.create({
   unverifiedText: { color: '#fca5a5', fontSize: 11, fontWeight: 'bold', textAlign: 'center' },
   imageWrapper: { position: 'relative', borderRadius: 8, overflow: 'hidden', borderWidth: 1, borderColor: '#1e293b' },
   capturedImage: { width: 120, height: 160, resizeMode: 'cover' },
-  imageTypeText: { position: 'absolute', bottom: 0, left: 0, right: 0, backgroundColor: 'rgba(0,0,0,0.6)', color: '#fff', fontSize: 10, textAlign: 'center', paddingVertical: 4, fontWeight: 'bold' }
+  imageTypeText: { position: 'absolute', bottom: 0, left: 0, right: 0, backgroundColor: 'rgba(0,0,0,0.6)', color: '#fff', fontSize: 10, textAlign: 'center', paddingVertical: 4, fontWeight: 'bold' },
+  offlineBanner: { backgroundColor: '#b45309', padding: 4, borderRadius: 4, marginBottom: 8 },
+  offlineText: { color: '#fef3c7', fontSize: 11, fontWeight: 'bold', textAlign: 'center' },
+  modalContainer: { flex: 1, backgroundColor: 'rgba(0,0,0,0.8)', justifyContent: 'flex-end' },
+  modalContent: { backgroundColor: '#0f172a', borderTopLeftRadius: 16, borderTopRightRadius: 16, padding: 20, maxHeight: '80%' },
+  modalTitle: { color: '#f8fafc', fontSize: 18, fontWeight: 'bold' },
+  closeText: { color: '#94a3b8', fontSize: 14 },
+  explanationBox: { backgroundColor: '#1e293b', padding: 12, borderRadius: 8, marginVertical: 12 },
+  explanationTitle: { color: '#38bdf8', fontSize: 12, fontWeight: 'bold', marginBottom: 4, textTransform: 'uppercase' },
+  explanationText: { color: '#e2e8f0', fontSize: 14, lineHeight: 20 },
+  evidenceContainer: { marginTop: 8, marginBottom: 16, alignItems: 'center', backgroundColor: '#000', borderRadius: 8, overflow: 'hidden' },
+  evidenceImage: { width: '100%', height: 200, resizeMode: 'contain' },
+  evidenceRegionBox: { position: 'absolute', top: '10%', left: '10%', width: '80%', height: '25%', borderWidth: 2, borderColor: '#ef4444' },
+  label: { color: '#94a3b8', fontSize: 12, fontWeight: 'bold', marginBottom: 8 },
+  input: { backgroundColor: '#1e293b', color: '#f8fafc', padding: 12, borderRadius: 8, minHeight: 80, textAlignVertical: 'top', marginBottom: 16 },
+  actionButtons: { flexDirection: 'row', gap: 12 },
+  btn: { flex: 1, padding: 12, borderRadius: 8, alignItems: 'center' },
+  btnText: { fontWeight: 'bold', fontSize: 14 }
 });

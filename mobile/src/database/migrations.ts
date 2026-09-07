@@ -61,5 +61,18 @@ export default schemaMigrations({
         }),
       ],
     },
+    {
+      toVersion: 6,
+      steps: [
+        addColumns({
+          table: 'violations',
+          columns: [
+            { name: 'ai_explanation', type: 'string', isOptional: true },
+            { name: 'evidence_image_path', type: 'string', isOptional: true },
+            { name: 'inspector_note', type: 'string', isOptional: true },
+          ],
+        }),
+      ],
+    },
   ],
 });
