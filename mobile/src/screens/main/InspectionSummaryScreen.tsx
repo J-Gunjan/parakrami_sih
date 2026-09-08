@@ -162,12 +162,18 @@ export default function InspectionSummaryScreen({ route, navigation }: any) {
             <Text style={styles.emptyText}>No pictures captured.</Text>
           ) : (
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 12 }}>
-              {images.map(img => (
-                <View key={img.id} style={styles.imageWrapper}>
-                  <Image source={{ uri: img.localFilePath }} style={styles.capturedImage} />
-                  <Text style={styles.imageTypeText}>{img.imageType.toUpperCase()}</Text>
-                </View>
-              ))}
+              {images.map(img => {
+                const getBackendUrl = require('../../utils/api').getBackendUrl;
+                const uri = img.localFilePath.startsWith('/uploads') 
+                  ? `${getBackendUrl()}${img.localFilePath}`
+                  : img.localFilePath;
+                return (
+                  <View key={img.id} style={styles.imageWrapper}>
+                    <Image source={{ uri }} style={styles.capturedImage} />
+                    <Text style={styles.imageTypeText}>{img.imageType.toUpperCase()}</Text>
+                  </View>
+                );
+              })}
             </ScrollView>
           )}
         </View>
@@ -295,7 +301,11 @@ export default function InspectionSummaryScreen({ route, navigation }: any) {
 
                 {selectedViolation.evidenceImagePath ? (
                   <View style={styles.evidenceContainer}>
-                     <Image source={{ uri: selectedViolation.evidenceImagePath }} style={styles.evidenceImage} />
+                     <Image source={{ 
+                        uri: selectedViolation.evidenceImagePath.startsWith('/uploads') 
+                          ? `${require('../../utils/api').getBackendUrl()}${selectedViolation.evidenceImagePath}`
+                          : selectedViolation.evidenceImagePath
+                      }} style={styles.evidenceImage} />
                      {selectedViolation.evidenceRegion ? (
                        <View style={styles.evidenceRegionBox} />
                      ) : null}

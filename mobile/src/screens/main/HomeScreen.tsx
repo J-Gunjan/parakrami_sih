@@ -93,9 +93,12 @@ export default function HomeScreen({ navigation }: any) {
           <Text style={styles.appTitle}>NyayaLabel AI</Text>
           <Text style={styles.appSubtitle}>Legal Metrology Officer App (SIH26034)</Text>
         </TouchableOpacity>
-        <View style={styles.statusBadge}>
+        <TouchableOpacity 
+          style={styles.statusBadge}
+          onPress={() => navigation.navigate('SyncStatus')}
+        >
           <Text style={styles.statusText}>{syncStatus.toUpperCase()}</Text>
-        </View>
+        </TouchableOpacity>
       </View>
 
       {/* Main Content */}
