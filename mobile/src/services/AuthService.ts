@@ -7,42 +7,59 @@ export interface LoginResponse {
 }
 
 export class AuthService {
-  /**
-   * Mock login to simulate POST /api/auth/login.
-   * Will be replaced with actual API call when backend is integrated.
-   */
   static async login(email: string, password: string): Promise<LoginResponse> {
-    // Simulate network delay
-    await new Promise(resolve => setTimeout(resolve, 1500));
-
-    // Basic validation
     if (!email || !password) {
       throw new Error('Email and password are required.');
     }
 
-    // Mock successful response
-    if (email === 'test@gov.in' && password === 'password') {
-      return {
-        token: 'mock-jwt-token-xyz-789',
-        officer: {
-          id: 'officer-1',
-          name: 'Inspector R. Sharma',
-          badgeNumber: 'LM-DEL-2024-41',
-          jurisdiction: 'New Delhi North-West',
-          email: 'test@gov.in'
-        } as Officer
-      };
-    }
+    const { getBackendUrl } = require('../utils/api');
+    
+    try {
+      const response = await fetch(`${getBackendUrl()}/api/auth/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
 
-    // Mock failed response
-    throw new Error('Invalid email or password.');
+      const data = await response.json();
+
+      if (!response.ok || !data.success) {
+        throw new Error(data.error || 'Invalid email or password.');
+      }
+
+      return {
+        token: data.token,
+        officer: data.officer
+      };
+    } catch (error: any) {
+      console.error('[AUTH] Login failed:', error.message);
+      throw new Error(error.message || 'Failed to connect to authentication server');
+    }
   }
 
   /**
-   * Mock token refresh
+   * Actual token refresh calling the backend
    */
   static async refreshToken(oldToken: string): Promise<string> {
-    await new Promise(resolve => setTimeout(resolve, 800));
-    return `refreshed-jwt-token-${Date.now()}`;
+    const { getBackendUrl } = require('../utils/api');
+    try {
+      const response = await fetch(`${getBackendUrl()}/api/auth/refresh`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ token: oldToken }),
+      });
+
+      const data = await response.json();
+      if (!response.ok || !data.success) {
+        throw new Error('Failed to refresh token');
+      }
+      return data.token;
+    } catch (error) {
+      throw error;
+    }
   }
 }

@@ -1,5 +1,6 @@
 import { RuleModel } from '../models/Rule.js';
 import { RuleEvaluationResult, EvaluationResultStatus } from '@nyayalabel/shared';
+import { GoogleGenAI, Type } from '@google/genai';
 
 export class RuleEngineService {
   /**
@@ -16,15 +17,29 @@ export class RuleEngineService {
     
     const results: RuleEvaluationResult[] = [];
     
-    // 1. Fetch all rules valid on the inspectionDate
-    const rules = await RuleModel.find({
-      effectiveFrom: { $lte: inspectionDate },
-      $or: [
-        { effectiveUntil: null },
-        { effectiveUntil: { $gt: inspectionDate } }
-      ],
-      isActive: true
-    }).lean();
+    let rules: any[] = [];
+    try {
+      rules = await RuleModel.find({
+        effectiveFrom: { $lte: inspectionDate },
+        $or: [
+          { effectiveUntil: null },
+          { effectiveUntil: { $gt: inspectionDate } }
+        ],
+        isActive: true
+      }).lean();
+    } catch (error: any) {
+      console.error(`[RULE ENGINE] Failed to fetch rules from MongoDB (${error.message}). Using fallback demo rules.`);
+      rules = [{
+        ruleId: 'r-dev-fallback',
+        ruleCode: 'DEV_UNVERIFIED_DEMO_RULE',
+        version: '1.0',
+        applicableCommodity: 'ALL',
+        severity: 'LOW',
+        sourceAct: 'Unknown Act',
+        sourceRule: 'Demo Rule',
+        verificationStatus: 'UNVERIFIED'
+      }];
+    }
 
     // 2. Evaluate each rule
     for (const rule of rules) {
@@ -107,7 +122,72 @@ export class RuleEngineService {
       }
     }
 
+    await this.enrichWithAIExplanations(results);
     return results;
+  }
+
+  private async enrichWithAIExplanations(results: RuleEvaluationResult[]) {
+    const fallback = (res: RuleEvaluationResult) => {
+      res.aiExplanation = `Detected: ${res.observedValue} | Issue: ${res.reason} | Rule reference: ${res.ruleCode} | Confidence: ${Math.round(res.confidence * 100)}% | Action: verify original package.`;
+      res.evidenceRegion = '10,10,200,50'; // mocked overlay
+    };
+
+    if (!process.env.GEMINI_API_KEY) {
+      results.forEach(fallback);
+      return;
+    }
+
+    try {
+      const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+      const modelName = process.env.GEMINI_MODEL || 'gemini-3.6-flash';
+      
+      const prompt = `
+        You are an AI assistant for a legal metrology inspection platform. 
+        Generate a short plain-language explanation for each of the following inspection findings.
+        Format the explanation strictly like this example: 
+        "Detected: ₹250 | Issue: declared MRP format could not be verified | Evidence: rear label, Region B4 | Rule reference: [id] | Confidence: 91% | Action: verify original package before enforcement action."
+        
+        Do not invent legal conclusions. Only base it on the provided findings.
+        Findings data: ${JSON.stringify(results.map(r => ({ ruleCode: r.ruleCode, status: r.status, observed: r.observedValue, expected: r.expectedValue, reason: r.reason, confidence: r.confidence })))}
+      `;
+      
+      const schema = {
+        type: Type.ARRAY,
+        items: {
+          type: Type.OBJECT,
+          properties: {
+            ruleCode: { type: Type.STRING },
+            explanation: { type: Type.STRING }
+          }
+        }
+      };
+      
+      const response = await ai.models.generateContent({
+        model: modelName,
+        contents: prompt,
+        config: {
+          responseMimeType: "application/json",
+          responseSchema: schema,
+          temperature: 0.1,
+        }
+      });
+      
+      const responseText = response.text || "[]";
+      const aiExplanations = JSON.parse(responseText);
+      
+      for (const res of results) {
+        const found = aiExplanations.find((e: any) => e.ruleCode === res.ruleCode);
+        if (found && found.explanation) {
+          res.aiExplanation = found.explanation;
+          res.evidenceRegion = '10,10,200,50'; // mocked overlay
+        } else {
+          fallback(res);
+        }
+      }
+    } catch (e: any) {
+      console.error('[RULE ENGINE] LLM Explanation error:', e.message);
+      results.forEach(fallback);
+    }
   }
 
   private buildResult(

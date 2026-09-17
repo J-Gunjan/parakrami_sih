@@ -62,4 +62,9 @@ export interface RuleEvaluationResult {
   
   confidence: number;
   inspectionDate: string | Date;
+  
+  // Evidence & AI Explanation Layer
+  aiExplanation?: string;
+  evidenceImagePath?: string;
+  evidenceRegion?: string;
 }

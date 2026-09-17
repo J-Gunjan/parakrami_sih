@@ -6,6 +6,7 @@ import SyncQueueItem from '../database/models/SyncQueueItem';
 import { getBackendUrl } from '../utils/api';
 import NetInfo from '@react-native-community/netinfo';
 import { Q } from '@nozbe/watermelondb';
+import { Platform } from 'react-native';
 
 export class SyncManager {
   /**
@@ -37,7 +38,7 @@ export class SyncManager {
         await this.processImageUpload(item);
         successCount++;
       } catch (err: any) {
-        console.error(`[SYNC ERROR] UPLOAD_IMAGE failed: ${err.message}`);
+        console.warn(`[SYNC ERROR] UPLOAD_IMAGE failed: ${err.message}`);
         failedCount++;
       }
     }
@@ -51,7 +52,7 @@ export class SyncManager {
         await this.processInspectionSync(item);
         successCount++;
       } catch (err: any) {
-        console.error(`[SYNC ERROR] SYNC_INSPECTION failed: ${err.message}`);
+        console.warn(`[SYNC ERROR] SYNC_INSPECTION failed: ${err.message}`);
         failedCount++;
       }
     }
@@ -120,12 +121,17 @@ export class SyncManager {
 
     const localUri = capturedImage.localFilePath;
 
+    let uriForUpload = localUri;
+    if (Platform.OS === 'android' && !uriForUpload.startsWith('file://') && !uriForUpload.startsWith('http')) {
+      uriForUpload = `file://${uriForUpload}`;
+    }
+
     // 2. Prepare FormData
     const formData = new FormData();
     const filename = localUri.split('/').pop() || 'image.jpg';
     
     formData.append('image', {
-      uri: localUri,
+      uri: uriForUpload,
       name: filename,
       type: 'image/jpeg',
     } as any);
@@ -134,13 +140,34 @@ export class SyncManager {
     const backendUrl = getBackendUrl();
     const uploadEndpoint = `${backendUrl}/api/images/upload`;
     
-    const response = await fetch(uploadEndpoint, {
+    const SecureStore = require('expo-secure-store');
+    let token = await SecureStore.getItemAsync('userToken');
+
+    let response = await fetch(uploadEndpoint, {
       method: 'POST',
       body: formData,
       headers: {
         'Accept': 'application/json',
+        'Authorization': `Bearer ${token}`
       },
     });
+
+    if (response.status === 401 || response.status === 403) {
+      console.log('[SYNC] Token expired during image upload, attempting refresh...');
+      const { AuthService } = require('./AuthService');
+      token = await AuthService.refreshToken(token);
+      await SecureStore.setItemAsync('userToken', token);
+      
+      // Retry
+      response = await fetch(uploadEndpoint, {
+        method: 'POST',
+        body: formData,
+        headers: {
+          'Accept': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+      });
+    }
 
     if (!response.ok) {
        throw new Error(`Upload failed with status ${response.status}`);
@@ -201,11 +228,34 @@ export class SyncManager {
     const backendUrl = getBackendUrl();
     const syncEndpoint = `${backendUrl}/api/inspections/sync`;
 
-    const response = await fetch(syncEndpoint, {
+    const SecureStore = require('expo-secure-store');
+    let token = await SecureStore.getItemAsync('userToken');
+
+    let response = await fetch(syncEndpoint, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
       body: JSON.stringify(payload)
     });
+
+    if (response.status === 401 || response.status === 403) {
+      console.log('[SYNC] Token expired during inspection sync, attempting refresh...');
+      const { AuthService } = require('./AuthService');
+      token = await AuthService.refreshToken(token);
+      await SecureStore.setItemAsync('userToken', token);
+      
+      // Retry
+      response = await fetch(syncEndpoint, {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(payload)
+      });
+    }
 
     if (!response.ok) {
        const errBody = await response.text();

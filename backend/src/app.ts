@@ -4,6 +4,9 @@ import helmet from 'helmet';
 import morgan from 'morgan';
 import { apiRouter } from './routes/index.js';
 import { errorHandler } from './middleware/errorHandler.js';
+import path from 'path';
+import fs from 'fs';
+import swaggerUi from 'swagger-ui-express';
 
 export function createApp(): Express {
   const app = express();
@@ -27,6 +30,10 @@ export function createApp(): Express {
   app.use(express.urlencoded({ extended: true, limit: '100mb' }));
   app.use(morgan('dev'));
 
+  // Swagger UI
+  const swaggerDocument = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'src/openapi.json'), 'utf8'));
+  app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+
   // Root welcome route
   app.get('/', (_req, res) => {
     res.json({
@@ -39,6 +46,9 @@ export function createApp(): Express {
 
   // Mount API router
   app.use('/api', apiRouter);
+
+  // Serve uploads directory statically
+  app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 
   // Global error handler
   app.use(errorHandler);
