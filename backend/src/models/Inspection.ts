@@ -1,7 +1,12 @@
 import mongoose, { Schema, Document } from 'mongoose';
 import { Inspection as SharedInspection } from '@nyayalabel/shared';
 
-export interface InspectionDocument extends Document, Omit<SharedInspection, 'id'> {}
+export interface InspectionDocument extends Document, Omit<SharedInspection, 'id'> {
+  geo?: {
+    type: string;
+    coordinates: number[];
+  };
+}
 
 const LocationSchema = new Schema({
   latitude: { type: Number, required: true },
@@ -55,14 +60,13 @@ const InspectionSchema = new Schema<InspectionDocument>({
 InspectionSchema.index({ geo: '2dsphere' });
 
 // Ensure coordinates are updated before saving
-InspectionSchema.pre('save', function(next) {
+InspectionSchema.pre('save', function(this: InspectionDocument) {
   if (this.location && this.location.longitude && this.location.latitude) {
     this.geo = {
       type: 'Point',
       coordinates: [this.location.longitude, this.location.latitude]
     };
   }
-  next();
 });
 
 InspectionSchema.set('toJSON', {

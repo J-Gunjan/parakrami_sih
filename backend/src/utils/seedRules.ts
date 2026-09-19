@@ -96,7 +96,7 @@ const seedRules: ComplianceRule[] = [
 
 async function seedDatabase() {
   console.log('Connecting to MongoDB...');
-  await mongoose.connect(MONGODB_URI);
+  await mongoose.connect(MONGODB_URI!);
   console.log('Connected.');
 
   console.log('Clearing existing rules...');

@@ -57,9 +57,9 @@ async function seed() {
     const now = new Date();
     const threeMonthsAgo = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
 
-    const inspectionsToInsert = [];
-    const productsToInsert = [];
-    const violationsToInsert = [];
+    const inspectionsToInsert: Record<string, any>[] = [];
+    const productsToInsert: Record<string, any>[] = [];
+    const violationsToInsert: Record<string, any>[] = [];
 
     // Let's create about 120 inspections
     for (let i = 0; i < 120; i++) {
