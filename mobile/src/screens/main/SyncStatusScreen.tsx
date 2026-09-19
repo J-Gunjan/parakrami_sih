@@ -67,7 +67,7 @@ export default function SyncStatusScreen({ navigation }: any) {
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar style="light" />
+      <StatusBar style="dark" />
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
           <Text style={styles.backText}>← Back</Text>
@@ -113,7 +113,7 @@ export default function SyncStatusScreen({ navigation }: any) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#020617' },
+  container: { flex: 1, backgroundColor: '#ffffff' },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -121,24 +121,24 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#1e293b',
+    borderBottomColor: '#e2e8f0',
   },
   backBtn: { padding: 8, width: 60 },
-  backText: { color: '#94a3b8', fontSize: 14 },
-  headerTitle: { color: '#f8fafc', fontSize: 18, fontWeight: '600' },
+  backText: { color: '#64748b', fontSize: 14 },
+  headerTitle: { color: '#0f172a', fontSize: 18, fontWeight: '600' },
   content: { padding: 16, flex: 1 },
   statsRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 },
-  statsText: { color: '#f8fafc', fontSize: 16, fontWeight: 'bold' },
+  statsText: { color: '#0f172a', fontSize: 16, fontWeight: 'bold' },
   syncBtn: { backgroundColor: '#38bdf8', paddingHorizontal: 16, paddingVertical: 8, borderRadius: 8 },
   syncBtnDisabled: { opacity: 0.5 },
   syncBtnText: { color: '#0f172a', fontWeight: 'bold' },
   emptyState: { flex: 1, justifyContent: 'center', alignItems: 'center', marginTop: 40 },
   emptyText: { color: '#10b981', fontSize: 18, fontWeight: 'bold' },
   emptySubtext: { color: '#64748b', fontSize: 14, marginTop: 4 },
-  card: { backgroundColor: '#0f172a', padding: 16, borderRadius: 12, borderWidth: 1, borderColor: '#1e293b' },
+  card: { backgroundColor: '#0f172a', padding: 16, borderRadius: 12, borderWidth: 1, borderColor: '#e2e8f0' },
   rowBetween: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 },
   actionText: { color: '#38bdf8', fontSize: 16, fontWeight: 'bold' },
   attemptsText: { color: '#f59e0b', fontSize: 12, fontWeight: 'bold' },
-  entityText: { color: '#cbd5e1', fontSize: 14, marginBottom: 2 },
+  entityText: { color: '#475569', fontSize: 14, marginBottom: 2 },
   errorText: { color: '#ef4444', fontSize: 12, marginTop: 8 }
 });

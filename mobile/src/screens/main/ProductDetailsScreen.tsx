@@ -251,7 +251,7 @@ export default function ProductDetailsScreen({ route, navigation }: any) {
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar style="light" />
+      <StatusBar style="dark" />
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
           <Text style={styles.backText}>← Back</Text>
@@ -454,7 +454,7 @@ export default function ProductDetailsScreen({ route, navigation }: any) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#020617' },
+  container: { flex: 1, backgroundColor: '#ffffff' },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -462,11 +462,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#1e293b',
+    borderBottomColor: '#e2e8f0',
   },
   backBtn: { padding: 8, width: 60 },
-  backText: { color: '#94a3b8', fontSize: 14 },
-  headerTitle: { color: '#f8fafc', fontSize: 18, fontWeight: '600' },
+  backText: { color: '#64748b', fontSize: 14 },
+  headerTitle: { color: '#0f172a', fontSize: 18, fontWeight: '600' },
   content: { padding: 16, gap: 16 },
   infoBox: {
     backgroundColor: 'rgba(56, 189, 248, 0.08)',
@@ -491,15 +491,15 @@ const styles = StyleSheet.create({
   inputGroup: { gap: 6 },
   row: { flexDirection: 'row' },
   labelRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  label: { color: '#cbd5e1', fontSize: 13, fontWeight: '500' },
+  label: { color: '#475569', fontSize: 13, fontWeight: '500' },
   aiBadge: { color: '#34d399', fontSize: 11, fontWeight: '600', backgroundColor: 'rgba(52, 211, 153, 0.15)', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 4 },
   input: {
-    backgroundColor: '#0f172a',
+    backgroundColor: '#ffffff',
     borderWidth: 1,
-    borderColor: '#334155',
+    borderColor: 'rgba(0,0,0,0.15)',
     borderRadius: 8,
     padding: 12,
-    color: '#f8fafc',
+    color: '#000000',
     fontSize: 15,
   },
   inputError: { borderColor: '#ef4444' },

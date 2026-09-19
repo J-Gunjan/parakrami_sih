@@ -83,7 +83,7 @@ export default function ImageReviewScreen({ route, navigation }: any) {
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar style="light" />
+      <StatusBar style="dark" />
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Review Captures</Text>
       </View>
@@ -111,16 +111,16 @@ export default function ImageReviewScreen({ route, navigation }: any) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#020617' },
-  header: { padding: 16, borderBottomWidth: 1, borderBottomColor: '#1e293b', alignItems: 'center' },
-  headerTitle: { color: '#f8fafc', fontSize: 18, fontWeight: '700' },
+  container: { flex: 1, backgroundColor: '#ffffff' },
+  header: { padding: 16, borderBottomWidth: 1, borderBottomColor: '#e2e8f0', alignItems: 'center' },
+  headerTitle: { color: '#0f172a', fontSize: 18, fontWeight: '700' },
   center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   content: { padding: 16, paddingBottom: 40 },
   grid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', gap: 16 },
-  gridItem: { width: '47%', backgroundColor: '#0f172a', borderRadius: 12, padding: 8, borderWidth: 1, borderColor: '#1e293b' },
-  itemLabel: { color: '#94a3b8', fontSize: 13, fontWeight: '600', marginBottom: 8, textAlign: 'center' },
+  gridItem: { width: '47%', backgroundColor: '#0f172a', borderRadius: 12, padding: 8, borderWidth: 1, borderColor: '#e2e8f0' },
+  itemLabel: { color: '#64748b', fontSize: 13, fontWeight: '600', marginBottom: 8, textAlign: 'center' },
   image: { width: '100%', aspectRatio: 3/4, borderRadius: 8, backgroundColor: '#000' },
-  placeholder: { width: '100%', aspectRatio: 3/4, borderRadius: 8, backgroundColor: '#1e293b', justifyContent: 'center', alignItems: 'center' },
+  placeholder: { width: '100%', aspectRatio: 3/4, borderRadius: 8, backgroundColor: '#e2e8f0', justifyContent: 'center', alignItems: 'center' },
   placeholderText: { color: '#64748b' },
   retakeBtn: { marginTop: 8, backgroundColor: 'rgba(56, 189, 248, 0.1)', paddingVertical: 8, borderRadius: 6, borderWidth: 1, borderColor: 'rgba(56, 189, 248, 0.3)', alignItems: 'center' },
   retakeText: { color: '#38bdf8', fontSize: 13, fontWeight: '600' },

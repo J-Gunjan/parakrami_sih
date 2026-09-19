@@ -6,6 +6,8 @@ import { syncRouter } from './sync.routes.js';
 import { imageRoutes } from './images.routes.js';
 
 import { authRouter } from './auth.routes.js';
+import { analyticsRouter } from './analytics.routes.js';
+import { dashboardRouter } from './dashboard.routes.js';
 
 export const apiRouter = Router();
 
@@ -26,6 +28,12 @@ apiRouter.use('/inspections/sync', syncRouter);
 
 // Image endpoints
 apiRouter.use('/images', imageRoutes);
+
+// Analytics endpoints
+apiRouter.use('/analytics', analyticsRouter);
+
+// Dashboard endpoints
+apiRouter.use('/dashboard', dashboardRouter);
 
 // Stubs for future phases
 apiRouter.get('/v1/inspections/stub', (_req, res) => {

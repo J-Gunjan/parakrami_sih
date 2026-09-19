@@ -1,10 +1,10 @@
 {
   "expo": {
-    "name": "NyayaLabel AI Officer",
+    "name": "Niyam Dristi Officer",
     "slug": "nyayalabel-ai-mobile",
     "version": "0.1.0",
     "orientation": "portrait",
-    "userInterfaceStyle": "dark",
+    "userInterfaceStyle": "light",
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "gov.in.nyayalabel.officer"
@@ -21,7 +21,7 @@
     },
     "web": {},
     "splash": {
-      "backgroundColor": "#020617"
+      "backgroundColor": "#ffffff"
     },
     "plugins": [
       "@morrowdigital/watermelondb-expo-plugin",
@@ -29,7 +29,7 @@
       [
         "expo-camera",
         {
-          "cameraPermission": "Allow NyayaLabel AI Officer to access your camera for product inspection."
+          "cameraPermission": "Allow Niyam Dristi Officer to access your camera for product inspection."
         }
       ]
     ]

@@ -147,24 +147,15 @@ export const mockRules: ComplianceRule[] = [
 
 export const inspectionService = {
   getInspections: async (): Promise<InspectionSummary[]> => {
-    // Return summaries based on full inspections mock
-    return mockInspections.map(insp => ({
-      id: insp.id,
-      officerId: insp.officerId,
-      officerName: mockOfficers.find(o => o.id === insp.officerId)?.name,
-      shopName: insp.shopName,
-      locationAddress: insp.location.address,
-      totalProducts: insp.products?.length || 0,
-      totalViolations: insp.violations?.length || 0,
-      overallResult: insp.overallResult,
-      status: insp.status,
-      syncStatus: insp.syncStatus,
-      createdAt: insp.createdAt
-    }));
+    const res = await fetch('/api/dashboard/inspections');
+    if (!res.ok) throw new Error('Failed to fetch inspections');
+    return res.json();
   },
   
   getInspectionById: async (id: string): Promise<Inspection | undefined> => {
-    return mockInspections.find(i => i.id === id);
+    const res = await fetch(`/api/dashboard/inspections/${id}`);
+    if (!res.ok) throw new Error('Failed to fetch inspection');
+    return res.json();
   },
 
   overrideResult: async (id: string, newResult: 'PASS' | 'FAIL' | 'REVIEW', reason: string): Promise<boolean> => {

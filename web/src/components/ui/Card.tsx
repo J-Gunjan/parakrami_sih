@@ -4,8 +4,10 @@ import { cn } from '../../lib/utils';
 export function Card({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
   return (
     <div
-      className={cn('rounded-xl border border-slate-800/80 bg-slate-900/50 text-slate-100 shadow', className)}
-      {...props}
+      className={cn(
+        'bg-white rounded-md border border-slate-200 shadow-sm overflow-hidden',
+        className
+      )}{...props}
     />
   );
 }
@@ -17,14 +19,14 @@ export function CardHeader({ className, ...props }: React.HTMLAttributes<HTMLDiv
 export function CardTitle({ className, ...props }: React.HTMLAttributes<HTMLHeadingElement>) {
   return (
     <h3
-      className={cn('font-semibold leading-none tracking-tight text-white', className)}
+      className={cn('font-semibold leading-none tracking-tight text-slate-900', className)}
       {...props}
     />
   );
 }
 
 export function CardDescription({ className, ...props }: React.HTMLAttributes<HTMLParagraphElement>) {
-  return <p className={cn('text-sm text-slate-400', className)} {...props} />;
+  return <p className={cn('text-sm text-slate-500', className)} {...props} />;
 }
 
 export function CardContent({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {

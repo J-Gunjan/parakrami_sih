@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { StyleSheet, Text, View, SafeAreaView, TouchableOpacity, FlatList, ActivityIndicator } from 'react-native';
+import { StyleSheet, Text, View, SafeAreaView, TouchableOpacity, FlatList, ActivityIndicator, Image } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { useFocusEffect } from '@react-navigation/native';
 import type { SyncStatus } from '@nyayalabel/shared';
@@ -48,7 +48,7 @@ export default function HomeScreen({ navigation }: any) {
   );
 
   const renderInspection = ({ item }: { item: Inspection }) => {
-    let badgeColor = '#94a3b8'; // default grey
+    let badgeColor = '#64748b'; // default grey
     let badgeText = item.apiSyncStatus;
     if (item.apiSyncStatus === 'synced') {
       badgeColor = '#34d399';
@@ -85,14 +85,10 @@ export default function HomeScreen({ navigation }: any) {
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar style="light" />
+      <StatusBar style="dark" />
 
-      {/* Header bar */}
-      <View style={styles.header}>
-        <TouchableOpacity onLongPress={() => navigation.navigate('Debug')} delayLongPress={800}>
-          <Text style={styles.appTitle}>NyayaLabel AI</Text>
-          <Text style={styles.appSubtitle}>Legal Metrology Officer App (SIH26034)</Text>
-        </TouchableOpacity>
+      {/* Top action row */}
+      <View style={styles.topActionRow}>
         <TouchableOpacity 
           style={styles.statusBadge}
           onPress={() => navigation.navigate('SyncStatus')}
@@ -100,6 +96,21 @@ export default function HomeScreen({ navigation }: any) {
           <Text style={styles.statusText}>{syncStatus.toUpperCase()}</Text>
         </TouchableOpacity>
       </View>
+
+      {/* Hero Section */}
+      <TouchableOpacity 
+        style={styles.heroContainer} 
+        onLongPress={() => navigation.navigate('Debug')} 
+        delayLongPress={800}
+        activeOpacity={0.9}
+      >
+        <Image 
+          source={require('../../../assets/niyam_dristi_logo.png')} 
+          style={styles.logo} 
+          resizeMode="contain" 
+        />
+        <Text style={styles.tagline}>Smarter Inspection. Stronger Compliance.</Text>
+      </TouchableOpacity>
 
       {/* Main Content */}
       <View style={styles.content}>
@@ -118,14 +129,7 @@ export default function HomeScreen({ navigation }: any) {
           </View>
         )}
 
-        {/* Offline-First Ready Notice */}
-        <View style={styles.infoBox}>
-          <Text style={styles.infoTitle}>⚡ Phase 0 Scaffolding Ready</Text>
-          <Text style={styles.infoDesc}>
-            Offline-first architecture initialized. Local WatermelonDB (SQLite) data layer, camera
-            quality assessment, and OCR extraction will be hooked in upcoming phases.
-          </Text>
-        </View>
+
 
         {/* Action placeholder */}
         <TouchableOpacity 
@@ -165,26 +169,31 @@ export default function HomeScreen({ navigation }: any) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#020617',
+    backgroundColor: '#ffffff',
   },
-  header: {
+  topActionRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'flex-end',
+    paddingHorizontal: 20,
+    paddingTop: 12,
+  },
+  heroContainer: {
     alignItems: 'center',
     paddingHorizontal: 20,
-    paddingVertical: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#1e293b',
+    marginTop: 10,
+    marginBottom: 10,
   },
-  appTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#38bdf8',
+  logo: {
+    width: '85%',
+    height: 140,
   },
-  appSubtitle: {
-    fontSize: 12,
-    color: '#94a3b8',
-    marginTop: 2,
+  tagline: {
+    color: '#0f172a',
+    fontSize: 14,
+    fontWeight: '700',
+    marginTop: 8,
+    textAlign: 'center',
+    letterSpacing: 0.5,
   },
   statusBadge: {
     backgroundColor: 'rgba(16, 185, 129, 0.15)',
@@ -205,8 +214,8 @@ const styles = StyleSheet.create({
     gap: 16,
   },
   card: {
-    backgroundColor: '#0f172a',
-    borderColor: '#1e293b',
+    backgroundColor: 'rgba(56, 189, 248, 0.08)',
+    borderColor: 'rgba(56, 189, 248, 0.2)',
     borderWidth: 1,
     borderRadius: 16,
     padding: 16,
@@ -237,12 +246,12 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   officerName: {
-    color: '#f8fafc',
+    color: '#0f172a',
     fontSize: 18,
     fontWeight: '700',
   },
   officerMeta: {
-    color: '#94a3b8',
+    color: '#64748b',
     fontSize: 13,
     marginTop: 4,
   },
@@ -260,7 +269,7 @@ const styles = StyleSheet.create({
     marginBottom: 6,
   },
   infoDesc: {
-    color: '#cbd5e1',
+    color: '#475569',
     fontSize: 13,
     lineHeight: 19,
   },
@@ -280,7 +289,7 @@ const styles = StyleSheet.create({
     padding: 16,
     alignItems: 'center',
     borderTopWidth: 1,
-    borderTopColor: '#1e293b',
+    borderTopColor: '#e2e8f0',
   },
   footerText: {
     color: '#64748b',
@@ -295,14 +304,14 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   emptyText: {
-    color: '#94a3b8',
+    color: '#64748b',
     fontSize: 14,
     textAlign: 'center',
     marginTop: 20,
   },
   inspectionCard: {
-    backgroundColor: '#0f172a',
-    borderColor: '#1e293b',
+    backgroundColor: 'rgba(56, 189, 248, 0.08)',
+    borderColor: 'rgba(56, 189, 248, 0.2)',
     borderWidth: 1,
     borderRadius: 12,
     padding: 16,
@@ -314,7 +323,7 @@ const styles = StyleSheet.create({
     marginBottom: 6,
   },
   shopName: {
-    color: '#f8fafc',
+    color: '#0f172a',
     fontSize: 16,
     fontWeight: '600',
     flex: 1,
@@ -331,7 +340,7 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   inspectionDate: {
-    color: '#94a3b8',
+    color: '#64748b',
     fontSize: 12,
     marginBottom: 4,
   },

@@ -30,13 +30,13 @@ export default function LoginScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar style="light" />
+      <StatusBar style="dark" />
       <KeyboardAvoidingView 
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'} 
         style={styles.content}
       >
         <View style={styles.header}>
-          <Text style={styles.appTitle}>NyayaLabel AI</Text>
+          <Text style={styles.appTitle}>Niyam Dristi</Text>
           <Text style={styles.appSubtitle}>Legal Metrology Officer App</Text>
         </View>
 
@@ -101,7 +101,7 @@ export default function LoginScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#020617',
+    backgroundColor: '#ffffff',
   },
   content: {
     flex: 1,
@@ -119,18 +119,18 @@ const styles = StyleSheet.create({
   },
   appSubtitle: {
     fontSize: 14,
-    color: '#94a3b8',
+    color: '#64748b',
     marginTop: 4,
   },
   formCard: {
     backgroundColor: '#0f172a',
-    borderColor: '#1e293b',
+    borderColor: '#e2e8f0',
     borderWidth: 1,
     borderRadius: 20,
     padding: 24,
   },
   cardHeader: {
-    color: '#f8fafc',
+    color: '#0f172a',
     fontSize: 14,
     fontWeight: '700',
     letterSpacing: 1,
@@ -154,20 +154,20 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   label: {
-    color: '#94a3b8',
+    color: '#64748b',
     fontSize: 12,
     fontWeight: '600',
     marginBottom: 8,
     textTransform: 'uppercase',
   },
   input: {
-    backgroundColor: '#1e293b',
-    borderColor: '#334155',
+    backgroundColor: '#ffffff',
+    borderColor: 'rgba(0,0,0,0.15)',
     borderWidth: 1,
     borderRadius: 12,
     paddingHorizontal: 16,
     paddingVertical: 14,
-    color: '#f8fafc',
+    color: '#000000',
     fontSize: 15,
   },
   button: {

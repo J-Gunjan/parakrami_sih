@@ -35,92 +35,97 @@ export function DashboardHome() {
   const complianceRate = total > 0 ? Math.round((compliant / total) * 100) : 0;
 
   return (
-    <div className="space-y-6">
+    <div className="p-8 max-w-7xl mx-auto space-y-8">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight text-white">Dashboard</h1>
-        <p className="text-slate-400">Overview of inspection metrics and recent activity.</p>
+        <h1 className="text-3xl font-bold tracking-tight mb-2 text-slate-900">Dashboard</h1>
+        <p className="text-slate-600">Overview of inspection metrics and recent activity.</p>
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Inspections</CardTitle>
-            <ClipboardCheck className="h-4 w-4 text-sky-400" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-white">{total}</div>
-            <p className="text-xs text-slate-400">Last 30 days</p>
-          </CardContent>
+      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        <Card className="p-6 bg-white border-slate-200 shadow-sm flex flex-col justify-between">
+          <div className="flex items-center space-x-4">
+            <div className="p-3 bg-indigo-50 rounded-md text-indigo-700">
+              <ClipboardCheck className="w-6 h-6" />
+            </div>
+            <div>
+              <p className="text-sm font-medium text-slate-500">Total Inspections</p>
+              <h3 className="text-2xl font-bold mt-1 text-slate-900">{total}</h3>
+            </div>
+          </div>
+          <p className="text-xs text-slate-500 mt-4">Last 30 days</p>
         </Card>
         
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Compliance Rate</CardTitle>
-            <CheckCircle2 className="h-4 w-4 text-emerald-400" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-white">{complianceRate}%</div>
-            <p className="text-xs text-slate-400">{compliant} compliant records</p>
-          </CardContent>
+        <Card className="p-6 bg-white border-slate-200 shadow-sm flex flex-col justify-between">
+          <div className="flex items-center space-x-4">
+            <div className="p-3 bg-emerald-50 rounded-md text-emerald-700">
+              <CheckCircle2 className="w-6 h-6" />
+            </div>
+            <div>
+              <p className="text-sm font-medium text-slate-500">Compliance Rate</p>
+              <h3 className="text-2xl font-bold mt-1 text-slate-900">{complianceRate}%</h3>
+            </div>
+          </div>
+          <p className="text-xs text-slate-500 mt-4">{compliant} compliant records</p>
         </Card>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Non-Compliant</CardTitle>
-            <AlertTriangle className="h-4 w-4 text-red-400" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-white">{nonCompliant}</div>
-            <p className="text-xs text-slate-400">Require enforcement action</p>
-          </CardContent>
+        <Card className="p-6 bg-white border-slate-200 shadow-sm flex flex-col justify-between">
+          <div className="flex items-center space-x-4">
+            <div className="p-3 bg-rose-50 rounded-md text-rose-700">
+              <AlertTriangle className="w-6 h-6" />
+            </div>
+            <div>
+              <p className="text-sm font-medium text-slate-500">Non-Compliant</p>
+              <h3 className="text-2xl font-bold mt-1 text-slate-900">{nonCompliant}</h3>
+            </div>
+          </div>
+          <p className="text-xs text-slate-500 mt-4">Require enforcement action</p>
         </Card>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Pending Review</CardTitle>
-            <Clock className="h-4 w-4 text-amber-400" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-white">{pending}</div>
-            <p className="text-xs text-slate-400">Awaiting reviewer decision</p>
-          </CardContent>
+        <Card className="p-6 bg-white border-slate-200 shadow-sm flex flex-col justify-between">
+          <div className="flex items-center space-x-4">
+            <div className="p-3 bg-amber-50 rounded-md text-amber-700">
+              <Clock className="w-6 h-6" />
+            </div>
+            <div>
+              <p className="text-sm font-medium text-slate-500">Pending Review</p>
+              <h3 className="text-2xl font-bold mt-1 text-slate-900">{pending}</h3>
+            </div>
+          </div>
+          <p className="text-xs text-slate-500 mt-4">Awaiting reviewer decision</p>
         </Card>
       </div>
 
       {/* Recent Activity */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Recent Inspections</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
+      <div className="space-y-4">
+        <h2 className="text-xl font-bold tracking-tight text-slate-900">Recent Inspections</h2>
+        <Card className="border-slate-200 bg-white shadow-sm overflow-hidden">
+          <div className="divide-y divide-slate-200">
             {inspections.slice(0, 5).map(insp => (
-              <div key={insp.id} className="flex items-center justify-between p-4 rounded-lg bg-slate-900/50 border border-slate-800">
-                <div className="flex flex-col gap-1">
-                  <Link to={`/inspections/${insp.id}`} className="font-medium text-sky-400 hover:underline">
+              <div key={insp.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-6 hover:bg-slate-50 transition-colors">
+                <div className="flex flex-col gap-1 mb-4 sm:mb-0">
+                  <Link to={`/inspections/${insp.id}`} className="font-semibold text-lg text-nyaya-700 hover:underline">
                     {insp.shopName}
                   </Link>
-                  <div className="text-xs text-slate-400 flex items-center gap-2">
-                    <span>{new Date(insp.createdAt).toLocaleDateString()}</span>
-                    <span>•</span>
+                  <div className="text-sm text-slate-500 flex flex-wrap items-center gap-2">
+                    <span className="font-medium text-slate-700">{new Date(insp.createdAt).toLocaleDateString()}</span>
+                    <span className="hidden sm:inline">•</span>
                     <span>Officer: {insp.officerName}</span>
+                    <span className="hidden sm:inline">•</span>
+                    <span className="truncate max-w-[200px] lg:max-w-md">{insp.locationAddress}</span>
                   </div>
                 </div>
                 <div className="flex items-center gap-4">
-                  <div className="text-sm text-slate-300 hidden sm:block">
-                    {insp.locationAddress}
-                  </div>
                   <StatusBadge status={insp.overallResult} />
                 </div>
               </div>
             ))}
             {inspections.length === 0 && (
-              <div className="text-sm text-slate-400 text-center py-4">No recent inspections found.</div>
+              <div className="text-sm text-slate-500 text-center py-8">No recent inspections found.</div>
             )}
           </div>
-        </CardContent>
-      </Card>
+        </Card>
+      </div>
     </div>
   );
 }

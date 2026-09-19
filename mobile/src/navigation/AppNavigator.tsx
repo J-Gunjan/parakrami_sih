@@ -19,8 +19,8 @@ const DarkTheme = {
   ...DefaultTheme,
   colors: {
     ...DefaultTheme.colors,
-    background: '#020617',
-    text: '#f8fafc',
+    background: '#ffffff',
+    text: '#0f172a',
   },
 };
 
@@ -62,6 +62,6 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#020617',
+    backgroundColor: '#ffffff',
   },
 });

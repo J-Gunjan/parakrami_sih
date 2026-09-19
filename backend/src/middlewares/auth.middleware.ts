@@ -34,7 +34,12 @@ export const authenticateToken = async (req: AuthenticatedRequest, res: Response
     req.officer = { id: decoded.id, role: decoded.role };
     next();
   } catch (error) {
-    res.status(403).json({ success: false, error: 'Invalid or expired token' });
+    if (error instanceof jwt.JsonWebTokenError || error instanceof jwt.TokenExpiredError) {
+      res.status(403).json({ success: false, error: 'Invalid or expired token' });
+    } else {
+      console.error('[AUTH MIDDLEWARE] Internal Error:', error);
+      res.status(500).json({ success: false, error: 'Internal server error during authentication' });
+    }
     return;
   }
 };

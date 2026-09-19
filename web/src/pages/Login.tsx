@@ -9,6 +9,7 @@ import { authService } from '../services/api';
 export function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [role, setRole] = useState('inspector');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -35,16 +36,16 @@ export function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center p-4">
+    <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-4">
       <div className="mb-8 flex flex-col items-center">
-        <div className="p-3 rounded-2xl bg-sky-500/10 border border-sky-500/20 text-sky-400 mb-4">
+        <div className="p-3 rounded-2xl bg-nyaya-50 border border-nyaya-200 text-nyaya-700 mb-4">
           <Scale className="w-10 h-10" />
         </div>
-        <h1 className="text-2xl font-bold text-white tracking-tight">NyayaLabel AI</h1>
-        <p className="text-slate-400 text-sm mt-1">Admin & Reviewer Portal</p>
+        <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Niyam Dristi</h1>
+        <p className="text-slate-600 text-sm mt-1">Admin & Reviewer Portal</p>
       </div>
 
-      <Card className="w-full max-w-md">
+      <Card className="w-full max-w-md transition-all duration-300 hover:-translate-y-2 hover:shadow-xl">
         <CardHeader className="text-center pb-4">
           <CardTitle className="text-xl">Welcome Back</CardTitle>
           <CardDescription>Sign in to your official account</CardDescription>
@@ -52,12 +53,28 @@ export function Login() {
         <CardContent>
           <form onSubmit={handleLogin} className="space-y-4">
             {error && (
-              <div className="p-3 text-sm text-red-400 bg-red-500/10 border border-red-500/20 rounded-md">
+              <div className="p-3 text-sm text-red-700 bg-red-50 border border-red-200 rounded-md">
                 {error}
               </div>
             )}
             <div className="space-y-2">
-              <label className="text-sm font-medium text-slate-300" htmlFor="email">
+              <label className="text-sm font-medium text-slate-700" htmlFor="role">
+                Select Role
+              </label>
+              <select
+                id="role"
+                className="flex h-10 w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-nyaya-500 focus:border-transparent transition-colors"
+                value={role}
+                onChange={(e) => setRole(e.target.value)}
+              >
+                <option value="inspector">Inspector</option>
+                <option value="admin">Admin</option>
+                <option value="district_head">District Head</option>
+                <option value="reviewing_official">Reviewing Official</option>
+              </select>
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-slate-700" htmlFor="email">
                 Email Address
               </label>
               <Input
@@ -70,7 +87,7 @@ export function Login() {
               />
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium text-slate-300" htmlFor="password">
+              <label className="text-sm font-medium text-slate-700" htmlFor="password">
                 Password
               </label>
               <Input

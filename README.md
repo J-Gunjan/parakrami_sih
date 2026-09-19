@@ -1,4 +1,4 @@
-# ⚖️ NyayaLabel AI
+# ⚖️ Niyam Dristi
 
 > **AI-Powered Offline-First Legal Metrology Inspection & Compliance Intelligence Platform**  
 > **Problem Statement ID:** SIH26034 | Smart India Hackathon
@@ -7,7 +7,7 @@
 
 ## 📌 Executive Summary
 
-**NyayaLabel AI** is an enterprise-grade, offline-first compliance inspection ecosystem designed for Legal Metrology officers across India. It streamlines enforcement of the **Legal Metrology (Packaged Commodities) Rules, 2011** (and subsequent amendments) by transforming manual label scrutiny into an automated, AI-assisted verification pipeline with verifiable cryptographic evidence.
+**Niyam Dristi** is an enterprise-grade, offline-first compliance inspection ecosystem designed for Legal Metrology officers across India. It streamlines enforcement of the **Legal Metrology (Packaged Commodities) Rules, 2011** (and subsequent amendments) by transforming manual label scrutiny into an automated, AI-assisted verification pipeline with verifiable cryptographic evidence.
 
 The platform empowers field inspectors to operate in zero-connectivity environments with local SQLite/WatermelonDB persistence, on-device image quality validation, and automated extraction of mandatory declarations, while synchronizing seamlessly to a centralized government dashboard with GIS risk analytics.
 

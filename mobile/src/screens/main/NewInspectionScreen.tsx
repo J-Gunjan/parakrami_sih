@@ -97,7 +97,7 @@ export default function NewInspectionScreen({ navigation }: any) {
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar style="light" />
+      <StatusBar style="dark" />
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
           <Text style={styles.backText}>← Back</Text>
@@ -225,7 +225,7 @@ export default function NewInspectionScreen({ navigation }: any) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#020617' },
+  container: { flex: 1, backgroundColor: '#ffffff' },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -233,32 +233,32 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#1e293b',
+    borderBottomColor: '#e2e8f0',
   },
   backBtn: { padding: 8, width: 60 },
-  backText: { color: '#94a3b8', fontSize: 14 },
-  headerTitle: { color: '#f8fafc', fontSize: 18, fontWeight: '600' },
+  backText: { color: '#64748b', fontSize: 14 },
+  headerTitle: { color: '#0f172a', fontSize: 18, fontWeight: '600' },
   content: { padding: 16, gap: 24 },
   section: { gap: 16 },
   sectionTitle: { color: '#38bdf8', fontSize: 12, fontWeight: '700', letterSpacing: 1 },
   infoRow: { flexDirection: 'row', justifyContent: 'space-between' },
-  infoLabel: { color: '#94a3b8', fontSize: 14 },
-  infoValue: { color: '#f8fafc', fontSize: 14, fontWeight: '500' },
+  infoLabel: { color: '#64748b', fontSize: 14 },
+  infoValue: { color: '#0f172a', fontSize: 14, fontWeight: '500' },
   inputGroup: { gap: 6 },
   row: { flexDirection: 'row' },
-  label: { color: '#cbd5e1', fontSize: 13, fontWeight: '500' },
+  label: { color: '#475569', fontSize: 13, fontWeight: '500' },
   input: {
-    backgroundColor: '#0f172a',
+    backgroundColor: '#ffffff',
     borderWidth: 1,
-    borderColor: '#334155',
+    borderColor: 'rgba(0,0,0,0.15)',
     borderRadius: 8,
     padding: 12,
-    color: '#f8fafc',
+    color: '#000000',
     fontSize: 15,
   },
   inputError: { borderColor: '#ef4444' },
   errorText: { color: '#ef4444', fontSize: 12 },
-  gpsContainer: { backgroundColor: 'rgba(56, 189, 248, 0.05)', padding: 12, borderRadius: 12, gap: 12, borderWidth: 1, borderColor: '#1e293b' },
+  gpsContainer: { backgroundColor: 'rgba(56, 189, 248, 0.05)', padding: 12, borderRadius: 12, gap: 12, borderWidth: 1, borderColor: '#e2e8f0' },
   gpsBtn: { backgroundColor: 'rgba(56, 189, 248, 0.1)', paddingVertical: 10, borderRadius: 8, alignItems: 'center', borderWidth: 1, borderColor: 'rgba(56, 189, 248, 0.3)' },
   gpsBtnText: { color: '#38bdf8', fontSize: 14, fontWeight: '600' },
   saveBtn: { backgroundColor: '#0284c7', borderRadius: 12, paddingVertical: 16, alignItems: 'center', marginTop: 12 },

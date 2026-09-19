@@ -184,7 +184,7 @@ export default function CameraCaptureScreen({ route, navigation }: any) {
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar style="light" />
+      <StatusBar style="dark" />
       
       <View style={styles.header}>
         <Text style={styles.headerText}>Capture: {CAPTURE_LABELS[currentTargetType]}</Text>
@@ -268,7 +268,7 @@ const styles = StyleSheet.create({
   btn: { padding: 12, backgroundColor: '#38bdf8', borderRadius: 8, margin: 20, alignItems: 'center' },
   btnText: { color: '#fff', fontWeight: 'bold' },
   header: { padding: 16, alignItems: 'center', backgroundColor: '#0f172a' },
-  headerText: { color: '#f8fafc', fontSize: 18, fontWeight: '700' },
+  headerText: { color: '#0f172a', fontSize: 18, fontWeight: '700' },
   barcodeText: { color: '#34d399', fontSize: 12, marginTop: 4 },
   cameraContainer: { flex: 1, position: 'relative' },
   camera: { flex: 1 },
@@ -282,7 +282,7 @@ const styles = StyleSheet.create({
   failureOverlay: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#000' },
   failureContent: { backgroundColor: 'rgba(15, 23, 42, 0.9)', padding: 24, borderRadius: 16, alignItems: 'center', width: '80%', borderWidth: 1, borderColor: '#ef4444' },
   failureTitle: { color: '#ef4444', fontSize: 18, fontWeight: 'bold', marginBottom: 8 },
-  failureReason: { color: '#f8fafc', fontSize: 16, marginBottom: 24 },
+  failureReason: { color: '#0f172a', fontSize: 16, marginBottom: 24 },
   retakeBtn: { backgroundColor: '#ef4444', paddingVertical: 12, paddingHorizontal: 24, borderRadius: 8 },
   retakeBtnText: { color: '#fff', fontWeight: 'bold', fontSize: 16 },
   thumbnailStrip: { flexDirection: 'row', justifyContent: 'center', padding: 12, backgroundColor: '#0f172a', gap: 12 },
@@ -294,5 +294,5 @@ const styles = StyleSheet.create({
   shutterBtnOuter: { width: 72, height: 72, borderRadius: 36, borderWidth: 4, borderColor: '#fff', justifyContent: 'center', alignItems: 'center' },
   shutterBtnInner: { width: 56, height: 56, borderRadius: 28, backgroundColor: '#fff' },
   skipBtn: { width: 60, padding: 8 },
-  skipText: { color: '#94a3b8', fontSize: 16, fontWeight: '600' },
+  skipText: { color: '#64748b', fontSize: 16, fontWeight: '600' },
 });

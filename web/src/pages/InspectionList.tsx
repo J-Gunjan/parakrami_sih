@@ -40,8 +40,8 @@ export function InspectionList() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-white">Inspections</h1>
-          <p className="text-slate-400">View and manage legal metrology compliance inspections.</p>
+          <h1 className="text-2xl font-bold tracking-tight text-slate-900">Inspections</h1>
+          <p className="text-slate-600">View and manage legal metrology compliance inspections.</p>
         </div>
         <div className="flex items-center gap-2">
           <div className="relative">
@@ -62,9 +62,9 @@ export function InspectionList() {
       <Card>
         <CardContent className="p-0">
           {loading ? (
-            <div className="p-8 text-center text-slate-400">Loading inspections...</div>
+            <div className="p-8 text-center text-slate-500">Loading inspections...</div>
           ) : filtered.length === 0 ? (
-            <div className="p-8 text-center text-slate-400">No inspections found.</div>
+            <div className="p-8 text-center text-slate-500">No inspections found.</div>
           ) : (
             <Table>
               <TableHeader>
@@ -79,17 +79,17 @@ export function InspectionList() {
               </TableHeader>
               <TableBody>
                 {filtered.map((insp) => (
-                  <TableRow key={insp.id} className="cursor-pointer hover:bg-slate-800/50" onClick={() => navigate(`/inspections/${insp.id}`)}>
+                  <TableRow key={insp.id} className="cursor-pointer hover:bg-slate-50" onClick={() => navigate(`/inspections/${insp.id}`)}>
                     <TableCell>
-                      <div className="font-medium text-sky-400">{insp.id}</div>
-                      <div className="text-xs text-slate-400">{new Date(insp.createdAt).toLocaleDateString()}</div>
+                      <div className="font-medium text-nyaya-700">{insp.id}</div>
+                      <div className="text-xs text-slate-500">{new Date(insp.createdAt).toLocaleDateString()}</div>
                     </TableCell>
                     <TableCell>
-                      <div className="font-medium text-slate-200">{insp.shopName}</div>
-                      <div className="text-xs text-slate-400 truncate max-w-[200px]">{insp.locationAddress}</div>
+                      <div className="font-medium text-slate-900">{insp.shopName}</div>
+                      <div className="text-xs text-slate-500 truncate max-w-[200px]">{insp.locationAddress}</div>
                     </TableCell>
                     <TableCell>
-                      <div className="text-sm text-slate-300">{insp.officerName}</div>
+                      <div className="text-sm text-slate-700">{insp.officerName}</div>
                     </TableCell>
                     <TableCell>
                       <StatusBadge status={insp.status} />

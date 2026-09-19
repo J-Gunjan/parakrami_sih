@@ -9,11 +9,11 @@ export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
 export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant = 'default', size = 'md', ...props }, ref) => {
     const variants = {
-      default: 'bg-sky-500 hover:bg-sky-600 text-white shadow-sm border border-transparent',
-      outline: 'bg-transparent border border-slate-700 hover:bg-slate-800 text-slate-200',
-      ghost: 'bg-transparent hover:bg-slate-800 text-slate-300',
-      danger: 'bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20',
-      success: 'bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/20',
+      default: 'bg-nyaya-700 hover:bg-nyaya-800 text-white shadow-sm border border-transparent',
+      outline: 'bg-transparent border border-slate-300 hover:bg-slate-50 text-slate-700',
+      ghost: 'bg-transparent hover:bg-slate-50 text-slate-700',
+      danger: 'bg-red-50 hover:bg-red-100 text-red-600 border border-red-200',
+      success: 'bg-emerald-50 hover:bg-emerald-100 text-emerald-600 border border-emerald-200',
     };
 
     const sizes = {
@@ -27,7 +27,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       <button
         ref={ref}
         className={cn(
-          'inline-flex items-center justify-center whitespace-nowrap rounded-md font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-sky-500 disabled:pointer-events-none disabled:opacity-50',
+          'inline-flex items-center justify-center whitespace-nowrap rounded-md font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-nyaya-500 disabled:pointer-events-none disabled:opacity-50',
           variants[variant],
           sizes[size],
           className

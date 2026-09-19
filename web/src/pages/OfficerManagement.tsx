@@ -37,10 +37,10 @@ export function OfficerManagement() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-white flex items-center gap-2">
-            <Users className="w-6 h-6 text-sky-400" /> Officer Management
+          <h1 className="text-2xl font-bold tracking-tight text-slate-900 flex items-center gap-2">
+            <Users className="w-6 h-6 text-nyaya-700" /> Officer Management
           </h1>
-          <p className="text-slate-400">Manage inspector accounts, roles, and jurisdictions.</p>
+          <p className="text-slate-600">Manage inspector accounts, roles, and jurisdictions.</p>
         </div>
         <div className="flex items-center gap-2">
           <Input 
@@ -56,9 +56,9 @@ export function OfficerManagement() {
       <Card>
         <CardContent className="p-0">
           {loading ? (
-            <div className="p-8 text-center text-slate-400">Loading officers...</div>
+            <div className="p-8 text-center text-slate-500">Loading officers...</div>
           ) : filteredOfficers.length === 0 ? (
-            <div className="p-8 text-center text-slate-400">No officers found.</div>
+            <div className="p-8 text-center text-slate-500">No officers found.</div>
           ) : (
             <Table>
               <TableHeader>
@@ -75,15 +75,15 @@ export function OfficerManagement() {
                 {filteredOfficers.map(officer => (
                   <TableRow key={officer.id}>
                     <TableCell>
-                      <div className="font-medium text-slate-200">{officer.name}</div>
+                      <div className="font-medium text-slate-900">{officer.name}</div>
                       <div className="text-xs text-slate-500">{officer.email}</div>
                     </TableCell>
-                    <TableCell className="font-mono text-sm text-slate-300">{officer.badgeNumber}</TableCell>
-                    <TableCell className="text-sm text-slate-300">{officer.jurisdiction}</TableCell>
+                    <TableCell className="font-mono text-sm text-slate-700">{officer.badgeNumber}</TableCell>
+                    <TableCell className="text-sm text-slate-700">{officer.jurisdiction}</TableCell>
                     <TableCell>
                       <div className="flex items-center gap-1">
-                        {officer.role === 'ADMIN' && <Shield className="w-3 h-3 text-red-400" />}
-                        <span className="text-xs font-semibold text-slate-300">{officer.role}</span>
+                        {officer.role === 'ADMIN' && <Shield className="w-3 h-3 text-red-600" />}
+                        <span className="text-xs font-semibold text-slate-700">{officer.role}</span>
                       </div>
                     </TableCell>
                     <TableCell>

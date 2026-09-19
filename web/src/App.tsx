@@ -13,6 +13,7 @@ import { RuleManagement } from './pages/RuleManagement';
 import { Reports } from './pages/Reports';
 import { OfficerManagement } from './pages/OfficerManagement';
 import { ManufacturerDirectory } from './pages/ManufacturerDirectory';
+import { AnalyticsDashboard } from './pages/AnalyticsDashboard';
 
 // A simple auth guard to check if a token exists in localStorage
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -39,6 +40,7 @@ export function App() {
           <Route path="reports" element={<Reports />} />
           <Route path="officers" element={<OfficerManagement />} />
           <Route path="manufacturers" element={<ManufacturerDirectory />} />
+          <Route path="analytics" element={<AnalyticsDashboard />} />
         </Route>
 
         {/* Fallback */}

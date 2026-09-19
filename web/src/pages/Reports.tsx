@@ -25,10 +25,10 @@ export function Reports() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight text-white flex items-center gap-2">
-          <FileText className="w-6 h-6 text-sky-400" /> Reports
+        <h1 className="text-2xl font-bold tracking-tight text-slate-900 flex items-center gap-2">
+          <FileText className="w-6 h-6 text-nyaya-700" /> Reports
         </h1>
-        <p className="text-slate-400">Generate analytics and export compliance records.</p>
+        <p className="text-slate-600">Generate analytics and export compliance records.</p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -40,27 +40,27 @@ export function Reports() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <label className="text-sm font-medium text-slate-300">Report Name</label>
+                <label className="text-sm font-medium text-slate-700">Report Name</label>
                 <Input placeholder="e.g. Q3 Summary" />
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium text-slate-300">Date Range</label>
+                <label className="text-sm font-medium text-slate-700">Date Range</label>
                 <div className="flex gap-2">
                   <Input type="date" />
                   <Input type="date" />
                 </div>
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium text-slate-300">Region</label>
-                <select className="w-full h-10 rounded-md border border-slate-700 bg-slate-900/50 px-3 py-2 text-sm text-slate-100">
+                <label className="text-sm font-medium text-slate-700">Region</label>
+                <select className="w-full h-10 rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900">
                   <option>All Regions</option>
                   <option>Jaipur Central</option>
                   <option>Jodhpur South</option>
                 </select>
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium text-slate-300">Product Category</label>
-                <select className="w-full h-10 rounded-md border border-slate-700 bg-slate-900/50 px-3 py-2 text-sm text-slate-100">
+                <label className="text-sm font-medium text-slate-700">Product Category</label>
+                <select className="w-full h-10 rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900">
                   <option>All Categories</option>
                   <option>Packaged Food</option>
                   <option>Electronics</option>
@@ -92,12 +92,12 @@ export function Reports() {
                 <TableBody>
                   {mockReports.map(rep => (
                     <TableRow key={rep.id}>
-                      <TableCell className="font-mono text-xs text-slate-400">{rep.id}</TableCell>
+                      <TableCell className="font-mono text-xs text-slate-600">{rep.id}</TableCell>
                       <TableCell>
-                        <div className="font-medium text-slate-200">{rep.name}</div>
+                        <div className="font-medium text-slate-900">{rep.name}</div>
                         <div className="text-xs text-slate-500">{rep.filters}</div>
                       </TableCell>
-                      <TableCell className="text-sm text-slate-300">{rep.date}</TableCell>
+                      <TableCell className="text-sm text-slate-700">{rep.date}</TableCell>
                       <TableCell>
                         <Badge variant="success">{rep.status}</Badge>
                       </TableCell>

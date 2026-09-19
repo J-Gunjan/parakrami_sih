@@ -1,8 +1,8 @@
-# NyayaLabel AI — Pipeline Architecture & Technical Specification
+# Niyam Dristi — Pipeline Architecture & Technical Specification
 
 ## 1. Overview
 
-NyayaLabel AI automates packaged commodities inspection for the Department of Legal Metrology. The architecture is engineered around an **offline-first edge model** where critical extraction, validation, and evidence gathering occur directly on the field officer's device, backed by a centralized verification and analytics cloud engine.
+Niyam Dristi automates packaged commodities inspection for the Department of Legal Metrology. The architecture is engineered around an **offline-first edge model** where critical extraction, validation, and evidence gathering occur directly on the field officer's device, backed by a centralized verification and analytics cloud engine.
 
 ---
 

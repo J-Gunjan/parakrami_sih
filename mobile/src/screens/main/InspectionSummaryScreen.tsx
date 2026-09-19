@@ -30,6 +30,8 @@ export default function InspectionSummaryScreen({ route, navigation }: any) {
   const [images, setImages] = useState<CapturedImage[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedViolation, setSelectedViolation] = useState<Violation | null>(null);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [showShopDetails, setShowShopDetails] = useState(false);
   const [inspectorNote, setInspectorNote] = useState('');
 
   const getOverallOutcomeText = (status: string) => {
@@ -63,14 +65,6 @@ export default function InspectionSummaryScreen({ route, navigation }: any) {
       let isActive = true;
       const fetchDetails = async () => {
         try {
-          // Trigger a sync if online
-          const { syncManager } = require('../../services/SyncManager');
-          const syncResult = await syncManager.syncPendingInspections();
-          
-          if (syncResult.success > 0) {
-            console.log(`[SYNC] Refreshing UI after successful sync`);
-          }
-
           const ins = await database.get<Inspection>('inspections').find(inspectionId);
           const prods = await ProductRepository.listForInspection(inspectionId);
           const viols = await database.get<Violation>('violations').query().fetch();
@@ -84,6 +78,25 @@ export default function InspectionSummaryScreen({ route, navigation }: any) {
             setImages(imgs);
             setLoading(false);
           }
+
+          // Trigger a sync if online, but DO NOT block the UI
+          const { syncManager } = require('../../services/SyncManager');
+          syncManager.syncPendingInspections().then((syncResult: any) => {
+            if (isActive && syncResult.success > 0) {
+              console.log(`[SYNC] Refreshing UI after successful sync`);
+              // Re-fetch violations to get the updated status
+              database.get<Violation>('violations').query().fetch().then(updatedViols => {
+                if (isActive) {
+                  setViolations(updatedViols.filter(v => v.inspectionId === inspectionId));
+                  // Also re-fetch inspection to get complianceStatus
+                  database.get<Inspection>('inspections').find(inspectionId).then(updatedIns => {
+                    if (isActive) setInspection(updatedIns);
+                  });
+                }
+              });
+            }
+          }).catch(console.error);
+
         } catch (e) {
           console.error(e);
           if (isActive) setLoading(false);
@@ -126,17 +139,18 @@ export default function InspectionSummaryScreen({ route, navigation }: any) {
     } catch(e) {}
     
     return (
-      <View style={styles.productCard}>
+      <TouchableOpacity style={styles.productCard} activeOpacity={0.7} onPress={() => setSelectedProduct(item)}>
         <Text style={styles.productName}>{fields.productName || 'Unknown Product'}</Text>
         <Text style={styles.productDetails}>MRP: {fields.mrp ? `₹${fields.mrp}` : 'N/A'}</Text>
         <Text style={styles.productDetails}>Brand/Mfg: {fields.manufacturer || 'N/A'}</Text>
-      </View>
+        <Text style={styles.tapText}>Tap to view all details</Text>
+      </TouchableOpacity>
     );
   };
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar style="light" />
+      <StatusBar style="dark" />
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
           <Text style={styles.backText}>← Back</Text>
@@ -148,12 +162,13 @@ export default function InspectionSummaryScreen({ route, navigation }: any) {
       <ScrollView contentContainerStyle={styles.content}>
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>SHOP DETAILS</Text>
-          <View style={styles.card}>
+          <TouchableOpacity style={styles.card} activeOpacity={0.7} onPress={() => setShowShopDetails(true)}>
             <Text style={styles.shopName}>{inspection.shopName}</Text>
             <Text style={styles.address}>{inspection.address}</Text>
             <Text style={styles.address}>{inspection.market}, {inspection.district}</Text>
             <Text style={styles.address}>Checked on: {new Date(inspection.createdAt).toLocaleString()}</Text>
-          </View>
+            <Text style={styles.tapText}>Tap to view all details</Text>
+          </TouchableOpacity>
         </View>
 
         <View style={styles.section}>
@@ -336,13 +351,68 @@ export default function InspectionSummaryScreen({ route, navigation }: any) {
         </View>
       </Modal>
 
+      <Modal visible={!!selectedProduct} transparent animationType="fade">
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <View style={styles.rowBetween}>
+              <Text style={styles.modalTitle}>Product Details</Text>
+              <TouchableOpacity onPress={() => setSelectedProduct(null)}>
+                <Text style={styles.closeText}>Close</Text>
+              </TouchableOpacity>
+            </View>
+            {selectedProduct && (() => {
+              let fields: any = {};
+              try { fields = JSON.parse(selectedProduct.declarationFields || '{}'); } catch(e) {}
+              return (
+                <ScrollView style={{ marginTop: 16 }}>
+                  <Text style={styles.detailLabel}>Product Name: <Text style={styles.detailValue}>{fields.productName || 'N/A'}</Text></Text>
+                  <Text style={styles.detailLabel}>Manufacturer: <Text style={styles.detailValue}>{fields.manufacturer || 'N/A'}</Text></Text>
+                  <Text style={styles.detailLabel}>Packer: <Text style={styles.detailValue}>{fields.packer || 'N/A'}</Text></Text>
+                  <Text style={styles.detailLabel}>Importer: <Text style={styles.detailValue}>{fields.importer || 'N/A'}</Text></Text>
+                  <Text style={styles.detailLabel}>Country of Origin: <Text style={styles.detailValue}>{fields.countryOfOrigin || 'N/A'}</Text></Text>
+                  <Text style={styles.detailLabel}>Net Quantity: <Text style={styles.detailValue}>{fields.netQuantity || 'N/A'}</Text></Text>
+                  <Text style={styles.detailLabel}>MRP: <Text style={styles.detailValue}>{fields.mrp ? `₹${fields.mrp}` : 'N/A'}</Text></Text>
+                  <Text style={styles.detailLabel}>Unit Sale Price: <Text style={styles.detailValue}>{fields.unitSalePrice || 'N/A'}</Text></Text>
+                  <Text style={styles.detailLabel}>Mfg Date: <Text style={styles.detailValue}>{fields.manufacturingDate || 'N/A'}</Text></Text>
+                  <Text style={styles.detailLabel}>Expiry/Best Before: <Text style={styles.detailValue}>{fields.expiryOrBestBefore || 'N/A'}</Text></Text>
+                  <Text style={styles.detailLabel}>Lot/Batch: <Text style={styles.detailValue}>{fields.lotBatch || 'N/A'}</Text></Text>
+                  <Text style={styles.detailLabel}>Consumer Care: <Text style={styles.detailValue}>{fields.consumerCare || 'N/A'}</Text></Text>
+                </ScrollView>
+              );
+            })()}
+          </View>
+        </View>
+      </Modal>
+
+      <Modal visible={showShopDetails} transparent animationType="fade">
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <View style={styles.rowBetween}>
+              <Text style={styles.modalTitle}>Shop Details</Text>
+              <TouchableOpacity onPress={() => setShowShopDetails(false)}>
+                <Text style={styles.closeText}>Close</Text>
+              </TouchableOpacity>
+            </View>
+            <ScrollView style={{ marginTop: 16 }}>
+              <Text style={styles.detailLabel}>Shop Name: <Text style={styles.detailValue}>{inspection.shopName}</Text></Text>
+              <Text style={styles.detailLabel}>Address: <Text style={styles.detailValue}>{inspection.address}</Text></Text>
+              <Text style={styles.detailLabel}>Market: <Text style={styles.detailValue}>{inspection.market}</Text></Text>
+              <Text style={styles.detailLabel}>District: <Text style={styles.detailValue}>{inspection.district}</Text></Text>
+              <Text style={styles.detailLabel}>GPS Lat: <Text style={styles.detailValue}>{inspection.locationLat || 'N/A'}</Text></Text>
+              <Text style={styles.detailLabel}>GPS Lng: <Text style={styles.detailValue}>{inspection.locationLng || 'N/A'}</Text></Text>
+              <Text style={styles.detailLabel}>Checked On: <Text style={styles.detailValue}>{new Date(inspection.createdAt).toLocaleString()}</Text></Text>
+            </ScrollView>
+          </View>
+        </View>
+      </Modal>
+
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#020617' },
-  center: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#020617' },
+  container: { flex: 1, backgroundColor: '#ffffff' },
+  center: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#ffffff' },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -350,11 +420,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#1e293b',
+    borderBottomColor: '#e2e8f0',
   },
   backBtn: { padding: 8, width: 60 },
-  backText: { color: '#94a3b8', fontSize: 14 },
-  headerTitle: { color: '#f8fafc', fontSize: 18, fontWeight: '600' },
+  backText: { color: '#64748b', fontSize: 14 },
+  headerTitle: { color: '#0f172a', fontSize: 18, fontWeight: '600' },
   errorText: { color: '#ef4444', fontSize: 16 },
   content: { padding: 16, gap: 24 },
   section: { gap: 12 },
@@ -362,15 +432,15 @@ const styles = StyleSheet.create({
   rowBetween: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   addBtn: { backgroundColor: 'rgba(56, 189, 248, 0.1)', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 8, borderWidth: 1, borderColor: 'rgba(56, 189, 248, 0.3)' },
   addBtnText: { color: '#38bdf8', fontSize: 13, fontWeight: '600' },
-  card: { backgroundColor: '#0f172a', borderRadius: 12, padding: 16, borderWidth: 1, borderColor: '#1e293b' },
-  shopName: { color: '#f8fafc', fontSize: 18, fontWeight: '700', marginBottom: 4 },
-  address: { color: '#94a3b8', fontSize: 14, marginBottom: 2 },
-  productCard: { backgroundColor: '#1e293b', borderRadius: 8, padding: 12 },
-  productName: { color: '#f8fafc', fontSize: 15, fontWeight: '600', marginBottom: 4 },
-  productDetails: { color: '#94a3b8', fontSize: 13 },
+  card: { backgroundColor: 'rgba(56, 189, 248, 0.08)', borderRadius: 12, padding: 16, borderWidth: 1, borderColor: 'rgba(56, 189, 248, 0.2)' },
+  shopName: { color: '#0f172a', fontSize: 18, fontWeight: '700', marginBottom: 4 },
+  address: { color: '#64748b', fontSize: 14, marginBottom: 2 },
+  productCard: { backgroundColor: '#e2e8f0', borderRadius: 8, padding: 12 },
+  productName: { color: '#0f172a', fontSize: 15, fontWeight: '600', marginBottom: 4 },
+  productDetails: { color: '#64748b', fontSize: 13 },
   emptyText: { color: '#64748b', fontStyle: 'italic' },
   warningText: { color: '#f59e0b', fontSize: 14, textAlign: 'center' },
-  violationCard: { backgroundColor: '#0f172a', borderRadius: 8, padding: 12, borderWidth: 1 },
+  violationCard: { backgroundColor: 'rgba(56, 189, 248, 0.08)', borderRadius: 8, padding: 12, borderWidth: 1, borderColor: 'rgba(56, 189, 248, 0.2)' },
   borderPass: { borderColor: '#10b981' },
   borderFail: { borderColor: '#ef4444' },
   borderReview: { borderColor: '#f59e0b' },
@@ -378,32 +448,35 @@ const styles = StyleSheet.create({
   bgFail: { backgroundColor: 'rgba(239, 68, 68, 0.2)', color: '#ef4444' },
   bgReview: { backgroundColor: 'rgba(245, 158, 11, 0.2)', color: '#f59e0b' },
   statusBadge: { paddingHorizontal: 8, paddingVertical: 4, borderRadius: 4, fontSize: 12, fontWeight: 'bold', overflow: 'hidden' },
-  ruleCode: { color: '#f8fafc', fontSize: 15, fontWeight: '700' },
-  reason: { color: '#cbd5e1', fontSize: 14, marginVertical: 8 },
-  traceabilityBox: { backgroundColor: '#1e293b', padding: 8, borderRadius: 6, marginBottom: 8 },
-  traceabilityLabel: { color: '#94a3b8', fontSize: 11, fontWeight: 'bold', marginBottom: 4, textTransform: 'uppercase' },
-  traceabilityText: { color: '#cbd5e1', fontSize: 12, fontFamily: 'monospace' },
-  detailText: { color: '#94a3b8', fontSize: 13 },
+  ruleCode: { color: '#0f172a', fontSize: 15, fontWeight: '700' },
+  reason: { color: '#475569', fontSize: 14, marginVertical: 8 },
+  traceabilityBox: { backgroundColor: '#e2e8f0', padding: 8, borderRadius: 6, marginBottom: 8 },
+  traceabilityLabel: { color: '#64748b', fontSize: 11, fontWeight: 'bold', marginBottom: 4, textTransform: 'uppercase' },
+  traceabilityText: { color: '#475569', fontSize: 12, fontFamily: 'monospace' },
+  detailText: { color: '#64748b', fontSize: 13 },
   unverifiedBanner: { backgroundColor: '#7f1d1d', padding: 6, borderRadius: 4, marginBottom: 8 },
   unverifiedText: { color: '#fca5a5', fontSize: 11, fontWeight: 'bold', textAlign: 'center' },
-  imageWrapper: { position: 'relative', borderRadius: 8, overflow: 'hidden', borderWidth: 1, borderColor: '#1e293b' },
+  imageWrapper: { position: 'relative', borderRadius: 8, overflow: 'hidden', borderWidth: 1, borderColor: '#e2e8f0' },
   capturedImage: { width: 120, height: 160, resizeMode: 'cover' },
   imageTypeText: { position: 'absolute', bottom: 0, left: 0, right: 0, backgroundColor: 'rgba(0,0,0,0.6)', color: '#fff', fontSize: 10, textAlign: 'center', paddingVertical: 4, fontWeight: 'bold' },
   offlineBanner: { backgroundColor: '#b45309', padding: 4, borderRadius: 4, marginBottom: 8 },
   offlineText: { color: '#fef3c7', fontSize: 11, fontWeight: 'bold', textAlign: 'center' },
   modalContainer: { flex: 1, backgroundColor: 'rgba(0,0,0,0.8)', justifyContent: 'flex-end' },
-  modalContent: { backgroundColor: '#0f172a', borderTopLeftRadius: 16, borderTopRightRadius: 16, padding: 20, maxHeight: '80%' },
-  modalTitle: { color: '#f8fafc', fontSize: 18, fontWeight: 'bold' },
-  closeText: { color: '#94a3b8', fontSize: 14 },
-  explanationBox: { backgroundColor: '#1e293b', padding: 12, borderRadius: 8, marginVertical: 12 },
+  modalContent: { backgroundColor: '#ffffff', borderTopLeftRadius: 16, borderTopRightRadius: 16, padding: 20, maxHeight: '80%' },
+  modalTitle: { color: '#0f172a', fontSize: 18, fontWeight: 'bold' },
+  closeText: { color: '#64748b', fontSize: 14 },
+  explanationBox: { backgroundColor: '#e2e8f0', padding: 12, borderRadius: 8, marginVertical: 12 },
   explanationTitle: { color: '#38bdf8', fontSize: 12, fontWeight: 'bold', marginBottom: 4, textTransform: 'uppercase' },
-  explanationText: { color: '#e2e8f0', fontSize: 14, lineHeight: 20 },
+  explanationText: { color: '#475569', fontSize: 14, lineHeight: 20 },
   evidenceContainer: { marginTop: 8, marginBottom: 16, alignItems: 'center', backgroundColor: '#000', borderRadius: 8, overflow: 'hidden' },
   evidenceImage: { width: '100%', height: 200, resizeMode: 'contain' },
   evidenceRegionBox: { position: 'absolute', top: '10%', left: '10%', width: '80%', height: '25%', borderWidth: 2, borderColor: '#ef4444' },
-  label: { color: '#94a3b8', fontSize: 12, fontWeight: 'bold', marginBottom: 8 },
-  input: { backgroundColor: '#1e293b', color: '#f8fafc', padding: 12, borderRadius: 8, minHeight: 80, textAlignVertical: 'top', marginBottom: 16 },
+  label: { color: '#64748b', fontSize: 12, fontWeight: 'bold', marginBottom: 8 },
+  input: { backgroundColor: '#ffffff', color: '#000000', borderWidth: 1, borderColor: 'rgba(0,0,0,0.15)', padding: 12, borderRadius: 8, minHeight: 80, textAlignVertical: 'top', marginBottom: 16 },
   actionButtons: { flexDirection: 'row', gap: 12 },
   btn: { flex: 1, padding: 12, borderRadius: 8, alignItems: 'center' },
-  btnText: { fontWeight: 'bold', fontSize: 14 }
+  btnText: { fontWeight: 'bold', fontSize: 14 },
+  tapText: { color: '#0ea5e9', fontSize: 12, fontWeight: '600', marginTop: 8 },
+  detailLabel: { color: '#64748b', fontSize: 13, fontWeight: 'bold', marginBottom: 8 },
+  detailValue: { color: '#0f172a', fontWeight: 'normal' },
 });
