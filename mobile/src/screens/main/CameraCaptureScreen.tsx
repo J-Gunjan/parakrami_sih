@@ -17,7 +17,7 @@ import { markerDetectionService } from '../../services/MarkerDetectionService';
 
 type CaptureType = 'front' | 'back' | 'side' | 'reference' | 'mrp';
 
-const SEQUENCE: CaptureType[] = ['front', 'back', 'side', 'reference', 'mrp'];
+const SEQUENCE: CaptureType[] = ['front', 'back', 'side', 'mrp'];
 
 const CAPTURE_LABELS: Record<CaptureType, string> = {
   front: 'Front Label',

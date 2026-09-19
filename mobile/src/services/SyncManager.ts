@@ -207,11 +207,11 @@ export class SyncManager {
     const images = await inspection.capturedImages.fetch();
     
     // Check if any image is still pending upload
-    if (images.some(img => !img.uploaded)) {
+    if (images.some((img: any) => !img.uploaded)) {
       throw new Error(`Cannot sync inspection yet, some images are not uploaded.`);
     }
 
-    const imagePayload = images.map(img => ({
+    const imagePayload = images.map((img: any) => ({
       imageType: img.imageType,
       remoteUrl: img.localFilePath // We stored remote URL here in processImageUpload
     }));
