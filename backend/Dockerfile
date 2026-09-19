@@ -24,6 +24,7 @@ COPY --from=builder /app/shared/dist ./shared/dist
 COPY --from=builder /app/backend/package*.json ./backend/
 COPY --from=builder /app/backend/dist ./backend/dist
 COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/backend/src/openapi.json ./backend/src/openapi.json
 
 WORKDIR /app/backend
 EXPOSE 5000
