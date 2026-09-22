@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/Card';
+import { Card } from '../components/ui/Card';
 import { StatusBadge } from '../components/ui/StatusBadge';
 import { inspectionService } from '../services/api';
 import { InspectionSummary } from '@nyayalabel/shared';
@@ -55,7 +55,7 @@ export function DashboardHome() {
           </div>
           <p className="text-xs text-slate-500 mt-4">Last 30 days</p>
         </Card>
-        
+
         <Card className="p-6 bg-white border-slate-200 shadow-sm flex flex-col justify-between">
           <div className="flex items-center space-x-4">
             <div className="p-3 bg-emerald-50 rounded-md text-emerald-700">

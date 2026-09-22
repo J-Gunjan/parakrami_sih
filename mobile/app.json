@@ -16,7 +16,9 @@
         "ACCESS_FINE_LOCATION",
         "ACCESS_COARSE_LOCATION",
         "READ_EXTERNAL_STORAGE",
-        "WRITE_EXTERNAL_STORAGE"
+        "WRITE_EXTERNAL_STORAGE",
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO"
       ]
     },
     "web": {},
@@ -32,6 +34,11 @@
           "cameraPermission": "Allow Niyam Dristi Officer to access your camera for product inspection."
         }
       ]
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "09e864a4-66e3-44e1-bfc7-e10920fc9751"
+      }
+    }
   }
 }

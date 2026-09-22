@@ -1,13 +1,13 @@
 import React from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
-import { 
-  LayoutDashboard, 
+import {
+  LayoutDashboard,
   ClipboardList,
-  Scale, 
+
   BookOpen,
-  FileText, 
-  Users, 
-  Building2, 
+  FileText,
+  Users,
+  Building2,
   BarChart3,
   LogOut,
   Menu
@@ -37,14 +37,14 @@ export function DashboardLayout() {
     <div className="min-h-screen bg-slate-50 text-slate-900 flex overflow-hidden">
       {/* Mobile sidebar backdrop */}
       {isSidebarOpen && (
-        <div 
+        <div
           className="fixed inset-0 z-40 bg-black/50 md:hidden"
           onClick={() => setIsSidebarOpen(false)}
         />
       )}
 
       {/* Sidebar */}
-      <aside 
+      <aside
         className={cn(
           "fixed md:static inset-y-0 left-0 z-50 w-64 bg-sky-100 text-slate-900 border-r border-sky-200 transform transition-transform duration-200 ease-in-out md:transform-none flex flex-col",
           isSidebarOpen ? "translate-x-0" : "-translate-x-full"
@@ -63,8 +63,8 @@ export function DashboardLayout() {
               onClick={() => setIsSidebarOpen(false)}
               className={({ isActive }) => cn(
                 "flex items-center px-3 py-2.5 rounded-r-lg text-sm font-medium transition-colors border-l-4",
-                isActive 
-                  ? "bg-sky-200 text-sky-900 border-sky-700" 
+                isActive
+                  ? "bg-sky-200 text-sky-900 border-sky-700"
                   : "border-transparent text-slate-700 hover:bg-sky-200/50 hover:text-sky-900"
               )}
             >
@@ -84,7 +84,7 @@ export function DashboardLayout() {
               <p className="text-xs text-slate-600 truncate">National Admin</p>
             </div>
           </div>
-          <button 
+          <button
             onClick={handleLogout}
             className="flex items-center w-full px-3 py-2 text-sm font-medium text-red-600 rounded-lg hover:bg-red-100/50 transition-colors"
           >
