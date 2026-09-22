@@ -72,60 +72,221 @@ flowchart TD
 └── README.md      -> Architecture documentation and developer guide
 ```
 
+
+
+# 🧩 Prototype vs. Proposed Production Stack
+
+The technologies below are intentionally divided into **what is used in the current prototype** and **what is planned for the complete production implementation**.
+
+This distinction ensures that the GitHub repository accurately represents the working prototype while the proposed architecture represents the technologies planned for full-scale execution.
+
+## 📱 Mobile Application
+
+| Component         | Current Prototype                  | Proposed Production System         |
+| ----------------- | ---------------------------------- | ---------------------------------- |
+| Framework         | React Native + Expo + TypeScript   | React Native + Expo + TypeScript   |
+| Navigation        | React Navigation                   | React Navigation                   |
+| Offline Storage   | Expo SQLite                        | Expo SQLite                        |
+| Secure Storage    | Expo SecureStore                   | Expo SecureStore                   |
+| Device APIs       | Expo Camera, Location, File System | Expo Camera, Location, File System |
+| Network Detection | React Native NetInfo               | React Native NetInfo               |
+
+## 🌐 Web Dashboard
+
+| Component  | Current Prototype         | Proposed Production System           |
+| ---------- | ------------------------- | ------------------------------------ |
+| Framework  | React + Vite + TypeScript | React + Vite + TypeScript            |
+| Styling    | Tailwind CSS              | Tailwind CSS                         |
+| Routing    | React Router              | React Router                         |
+| Maps       | Leaflet + React-Leaflet   | Mapbox GL JS                         |
+| Analytics  | Dashboard visualizations  | Apache ECharts + MongoDB Aggregation |
+| Deployment | Vercel                    | Vercel                               |
+
+## ⚙️ Backend & Database
+
+| Component         | Current Prototype              | Proposed Production System     |
+| ----------------- | ------------------------------ | ------------------------------ |
+| Backend           | Node.js + Express + TypeScript | Node.js + Express + TypeScript |
+| Database          | MongoDB Atlas + Mongoose       | MongoDB Atlas + Mongoose       |
+| Validation        | Zod                            | Zod + OpenAPI/Swagger          |
+| Authentication    | JWT                            | JWT + Refresh Tokens + RBAC    |
+| Password Security | Bcrypt                         | Argon2id                       |
+| File Handling     | Multer                         | Multer + Cloud Storage         |
+| API Documentation | Swagger UI                     | OpenAPI / Swagger              |
+
+## 👁️ OCR & AI
+
+| Component       | Current Prototype                    | Proposed Production System               |
+| --------------- | ------------------------------------ | ---------------------------------------- |
+| OCR             | Gemini API + OCR.space / ML Kit      | Google Document AI + Google Cloud Vision |
+| AI              | Gemini Multimodal API                | Multimodal LLM/API                       |
+| Legal Knowledge | Rule/data-based implementation       | MongoDB Atlas Vector Search + RAG        |
+| Compliance      | Deterministic TypeScript Rule Engine | Deterministic TypeScript Rule Engine     |
+
+## 📐 Computer Vision
+
+| Component        | Current Prototype                        | Proposed Production System |
+| ---------------- | ---------------------------------------- | -------------------------- |
+| Image Processing | Expo Image Manipulator / JPEG processing | OpenCV + preprocessing     |
+| Measurement      | Prototype implementation                 | OpenCV + ArUco             |
+| Barcode          | ML Kit / barcode scanner                 | ML Kit / barcode scanner   |
+
+## ☁️ Infrastructure & Advanced Services
+
+| Component           | Proposed Production Technology                   |
+| ------------------- | ------------------------------------------------ |
+| Cloud Storage       | Google Cloud Storage                             |
+| Background Jobs     | Redis + BullMQ                                   |
+| GIS                 | Mapbox GL JS                                     |
+| Analytics           | MongoDB Aggregation + Apache ECharts             |
+| Risk Analysis       | Custom Risk Scoring Engine                       |
+| PDF Reports         | Puppeteer                                        |
+| Report Verification | QR Code + SHA-256                                |
+| Security            | HTTPS + Helmet + Rate Limiting + Secrets Manager |
+| Monitoring          | Sentry + Pino + Cloud Monitoring                 |
+| Testing             | Vitest/Jest + Supertest + Playwright             |
+| Backend Deployment  | Google Cloud Run                                 |
+| CI/CD               | GitHub Actions                                   |
+| Mobile Deployment   | Expo EAS                                         |
+
 ---
 
-## 🧱 Packages & Tech Stack
+# 🏗️ System Architecture
 
-| Package                   | Purpose                      | Technology Stack                                          |
-| :------------------------ | :--------------------------- | :-------------------------------------------------------- |
-| **`@nyayalabel/shared`**  | Core Domain Models & Schemas | TypeScript 5.5, NodeNext ESM                              |
-| **`@nyayalabel/backend`** | REST API & Queue-based Sync  | Node.js, Express, TypeScript, Zod, MongoDB                |
-| **`@nyayalabel/web`**     | Reviewer & Admin Dashboard   | React 18/19, Vite, TypeScript, Tailwind CSS, Lucide Icons |
-| **`@nyayalabel/mobile`**  | Inspector Field Application  | React Native, Expo, TypeScript, WatermelonDB (SQLite)     |
+### Current Prototype
+
+```text
+┌─────────────────────┐
+│   Inspector Mobile  │
+│ React Native + Expo │
+└──────────┬──────────┘
+           │
+           ▼
+┌─────────────────────┐
+│      Backend        │
+│ Node.js + Express   │
+└───────┬───────┬─────┘
+        │       │
+        ▼       ▼
+   MongoDB     OCR / AI
+    Atlas
+        │
+        ▼
+┌─────────────────────┐
+│    Web Dashboard    │
+│ React + Vite + TS   │
+└─────────────────────┘
+```
+
+### Proposed Production Architecture
+
+```text
+                 ┌──────────────────────┐
+                 │    Inspector App     │
+                 │ React Native + Expo  │
+                 └──────────┬───────────┘
+                            │
+                            ▼
+                 ┌──────────────────────┐
+                 │      REST API        │
+                 │ Node + Express + TS  │
+                 └──────────┬───────────┘
+                            │
+          ┌─────────────────┼─────────────────┐
+          ▼                 ▼                 ▼
+     OCR / AI          Rule Engine        RAG / Legal
+          │                 │                 │
+          └─────────────────┼─────────────────┘
+                            ▼
+                 ┌──────────────────────┐
+                 │    MongoDB Atlas     │
+                 │ Data + Rules + RAG   │
+                 └──────────┬───────────┘
+                            │
+              ┌─────────────┼─────────────┐
+              ▼             ▼             ▼
+           Analytics       GIS          Reports
+              │             │             │
+              └─────────────┼─────────────┘
+                            ▼
+                 ┌──────────────────────┐
+                 │    Web Dashboard     │
+                 └──────────────────────┘
+```
+
+
+
 
 ---
 
-## 🚀 Quick Start
+# 🛠️ Running the Prototype
 
-### Prerequisites
-
-- **Node.js**: `v20+` or `v22+`
-- **npm**: `v10+`
-- **Docker & Docker Compose** (optional, for containerized backend + MongoDB)
-
-### Installation
+### Clone the repository
 
 ```bash
-# Clone and enter directory
-cd nyayalabel-ai
+git clone <repository-url>
+cd parakrami_sih
+```
 
-# Install all workspace dependencies
+### Install dependencies
+
+```bash
 npm install
-
-# Build shared types
-npm run build --workspace=shared
-
-# Typecheck all packages
-npm run typecheck
-
-# Lint all packages
-npm run lint
 ```
 
-### Running Development Services
+The project uses **npm workspaces** to manage the monorepo.
 
-```bash
-# Start backend REST API (Port 5000)
-npm run dev:backend
-
-# Start web dashboard (Port 5173)
-npm run dev:web
-
-# Start mobile officer app (Expo)
-npm run dev:mobile
-```
+Run the required applications using the commands defined in their respective workspace `package.json` files.
 
 ---
+
+# 🌐 Demo
+
+### Web Application
+
+**Live Demo:**
+`<parakrami-7kp40yejr-parakrami.vercel.app>`
+
+### Mobile Application
+
+**APK:**
+`<https://github.com/J-Gunjan/parakrami_sih/releases/download/v1.0.0/application-27ddee23-1c4d-437b-9fa4-dcd78b44b665.apk>`
+
+The prototype demonstrates the core inspection workflow from product capture and OCR through compliance evaluation and dashboard visualization.
+
+---
+
+# 📌 Project Status
+
+**Niyam Drishti is currently a working prototype developed for Smart India Hackathon (SIH).**
+
+The current prototype focuses on demonstrating the core functionality and user experience.
+
+The **Proposed Production Stack** represents the planned technical architecture for transforming the prototype into a scalable, secure, and deployment-ready Legal Metrology inspection platform.
+
+---
+
+# 🔮 Future Implementation
+
+The production version will progressively introduce:
+
+* Higher-accuracy structured OCR
+* Advanced computer vision and measurement
+* Vector-search-based legal knowledge retrieval
+* RAG-powered legal explanations
+* Scalable background processing
+* Advanced GIS and hotspot analytics
+* Risk-based inspection prioritization
+* Secure cloud infrastructure
+* Automated report generation and verification
+* Production monitoring and CI/CD
+
+---
+
+## 🎯 Vision
+
+> **Inspect Smarter. Enforce Better.**
+
 
 ## 📜 Statutory Reference
 
