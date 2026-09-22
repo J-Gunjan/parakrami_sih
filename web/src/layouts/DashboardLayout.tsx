@@ -111,7 +111,11 @@ export function DashboardLayout() {
             </div>
           </div>
           <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2 px-3 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs">
+            <div className="flex items-center gap-2 px-3 py-1 rounded-lg bg-amber-100 border border-amber-300 text-amber-800 text-xs font-bold shadow-sm">
+              <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
+              SIH DEMO MODE
+            </div>
+            <div className="flex items-center gap-2 px-3 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 text-xs">
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
               API Synced
             </div>

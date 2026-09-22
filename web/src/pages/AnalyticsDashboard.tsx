@@ -3,7 +3,7 @@ import { Card } from '../components/ui/Card';
 import { Map } from '../components/ui/Map';
 import { ShieldAlert, Search, Activity, Target } from 'lucide-react';
 import { format } from 'date-fns';
-
+import { demoInspections } from '../data/demoInspections';
 interface OverviewStats {
   totalInspections: number;
   violationRate: number;
@@ -41,14 +41,76 @@ export const AnalyticsDashboard = () => {
 
   useEffect(() => {
     Promise.all([
-      fetch('/api/analytics/overview').then(res => res.json()),
-      fetch('/api/analytics/priorities').then(res => res.json())
+      fetch('/api/analytics/overview').then(res => {
+        if (!res.ok) throw new Error('Failed to fetch');
+        return res.json();
+      }),
+      fetch('/api/analytics/priorities').then(res => {
+        if (!res.ok) throw new Error('Failed to fetch');
+        return res.json();
+      })
     ]).then(([overviewData, priorityData]) => {
       setStats(overviewData);
       setPriorities(priorityData);
       setLoading(false);
     }).catch(err => {
-      console.error('Failed to load analytics data', err);
+      console.warn('Failed to load analytics data, falling back to demo data', err);
+      
+      // Fallback OverviewStats
+      const totalInspections = demoInspections.length;
+      const failed = demoInspections.filter(i => i.overallResult === 'FAIL').length;
+      const violationRate = Math.round((failed / totalInspections) * 100) || 0;
+      
+      const totalProducts = demoInspections.reduce((sum, i) => sum + (i.products?.length || 0), 0);
+      
+      const hotspotCount: Record<string, number> = {};
+      demoInspections.forEach(i => {
+        const district = i.location.district || 'Unknown';
+        if (i.overallResult === 'FAIL') {
+          hotspotCount[district] = (hotspotCount[district] || 0) + 1;
+        }
+      });
+      const hotspots = Object.entries(hotspotCount)
+        .map(([name, count]) => ({ name, count }))
+        .sort((a, b) => b.count - a.count)
+        .slice(0, 5);
+
+      setStats({ totalInspections, violationRate, totalProducts, hotspots });
+
+      // Fallback PriorityScore
+      const productStats: Record<string, any> = {};
+      demoInspections.forEach(i => {
+        if (!i.products) return;
+        i.products.forEach(p => {
+          const key = `${p.brandName || 'Unknown'}_${p.barcodeOrGtin || 'Unknown'}`;
+          if (!productStats[key]) {
+            productStats[key] = {
+              brandName: p.brandName || 'Unknown',
+              sku: p.barcodeOrGtin || 'Unknown',
+              category: p.category,
+              inspectionsCount: 0,
+              failedCount: 0,
+              lastInspectionDate: i.startedAt,
+              locations: i.location.district || 'Unknown',
+              mainReason: 'Non-compliant declarations'
+            };
+          }
+          productStats[key].inspectionsCount++;
+          if (p.complianceResult?.decision === 'FAIL') {
+            productStats[key].failedCount++;
+          }
+          if (new Date(i.startedAt) > new Date(productStats[key].lastInspectionDate)) {
+            productStats[key].lastInspectionDate = i.startedAt;
+          }
+        });
+      });
+      
+      const prio = Object.values(productStats).map(p => ({
+        ...p,
+        score: Math.round((p.failedCount / p.inspectionsCount) * 100) || 0
+      })).sort((a, b) => b.score - a.score);
+
+      setPriorities(prio);
       setLoading(false);
     });
   }, []);
@@ -56,9 +118,27 @@ export const AnalyticsDashboard = () => {
   useEffect(() => {
     if (selectedProduct) {
       fetch(`/api/analytics/trends?brandName=${encodeURIComponent(selectedProduct.brandName)}&sku=${encodeURIComponent(selectedProduct.sku)}`)
-        .then(res => res.json())
+        .then(res => {
+          if (!res.ok) throw new Error('Failed to fetch');
+          return res.json();
+        })
         .then(data => setTrends(data))
-        .catch(err => console.error('Failed to load trends', err));
+        .catch(err => {
+          console.warn('Failed to load trends, falling back to demo data', err);
+          const related = demoInspections.filter(i => 
+            i.products?.some(p => p.brandName === selectedProduct.brandName && p.barcodeOrGtin === selectedProduct.sku)
+          );
+          const demoTrends = related.map(i => ({
+            id: i.id,
+            inspectionId: i.id,
+            date: i.startedAt,
+            shopName: i.shopName,
+            location: i.location.district || 'Unknown',
+            result: i.overallResult
+          })).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+          
+          setTrends(demoTrends);
+        });
     }
   }, [selectedProduct]);
 

@@ -12,18 +12,35 @@ interface MapDataPoint {
   date: string;
 }
 
+import { demoInspections } from '../../data/demoInspections';
+
 export const Map = () => {
   const [data, setData] = useState<MapDataPoint[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetch('/api/analytics/map')
-      .then(res => res.json())
+      .then(res => {
+        if (!res.ok) throw new Error('Failed to fetch');
+        return res.json();
+      })
       .then(data => {
         setData(data);
         setLoading(false);
       })
-      .catch(err => console.error('Failed to load map data', err));
+      .catch(err => {
+        console.warn('Failed to load map data, falling back to demo data', err);
+        const demoData: MapDataPoint[] = demoInspections.map(i => ({
+          id: i.id,
+          shopName: i.shopName,
+          latitude: i.location.latitude,
+          longitude: i.location.longitude,
+          status: i.overallResult,
+          date: i.startedAt
+        }));
+        setData(demoData);
+        setLoading(false);
+      });
   }, []);
 
   if (loading) {

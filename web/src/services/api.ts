@@ -1,6 +1,5 @@
 import { Inspection, ComplianceRule, Officer, InspectionSummary } from '@nyayalabel/shared';
-
-// MOCK DATA
+import { demoInspections } from '../data/demoInspections';// MOCK DATA
 
 export const mockOfficers: Officer[] = [
   {
@@ -147,24 +146,55 @@ export const mockRules: ComplianceRule[] = [
 
 export const inspectionService = {
   getInspections: async (): Promise<InspectionSummary[]> => {
-    const res = await fetch('/api/dashboard/inspections');
-    if (!res.ok) throw new Error('Failed to fetch inspections');
-    return res.json();
+    try {
+      const res = await fetch('/api/dashboard/inspections');
+      if (!res.ok) throw new Error('Failed to fetch inspections');
+      return await res.json();
+    } catch (error) {
+      console.warn('Real API failed, falling back to static DEMO data', error);
+      // Map demoInspections to InspectionSummary format expected by dashboard
+      return demoInspections.map(insp => ({
+        id: insp.id,
+        officerId: insp.officerId,
+        officerName: (insp as any).officerName || 'Demo Officer',
+        shopName: insp.shopName,
+        locationAddress: insp.location.address,
+        totalProducts: insp.products?.length || 0,
+        totalViolations: insp.violations?.length || 0,
+        overallResult: insp.overallResult,
+        status: insp.status,
+        syncStatus: insp.syncStatus,
+        createdAt: insp.createdAt
+      }));
+    }
   },
   
   getInspectionById: async (id: string): Promise<Inspection | undefined> => {
-    const res = await fetch(`/api/dashboard/inspections/${id}`);
-    if (!res.ok) throw new Error('Failed to fetch inspection');
-    return res.json();
+    try {
+      const res = await fetch(`/api/dashboard/inspections/${id}`);
+      if (!res.ok) throw new Error('Failed to fetch inspection');
+      return await res.json();
+    } catch (error) {
+      console.warn('Real API failed, falling back to static DEMO data', error);
+      return demoInspections.find(i => i.id === id) || mockInspections.find(i => i.id === id);
+    }
   },
 
   overrideResult: async (id: string, newResult: 'PASS' | 'FAIL' | 'REVIEW', reason: string): Promise<boolean> => {
-    // In a real app this would call the API.
-    // For mock, we'll just mutate our memory array.
-    const insp = mockInspections.find(i => i.id === id);
+    try {
+      const res = await fetch(`/api/dashboard/inspections/${id}/override`, { 
+        method: 'POST', 
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ newResult, reason }) 
+      });
+      if (res.ok) return true;
+    } catch (error) {
+      console.warn('API override failed, modifying demo memory array', error);
+    }
+
+    const insp = demoInspections.find(i => i.id === id) || mockInspections.find(i => i.id === id);
     if (insp) {
       insp.overallResult = newResult;
-      // Add to audit trail in real app...
       if(!insp.notes) insp.notes = '';
       insp.notes += `\n[REVIEWER OVERRIDE]: Changed to ${newResult}. Reason: ${reason}`;
       return true;
